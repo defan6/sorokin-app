@@ -5,14 +5,14 @@ spring:
   application:
     name: event-manager
   datasource:
-    url: jdbc:postgresql://localhost:5432/eventdb
+    url: jdbc:postgresql://localhost:5432/event_manager_db
     username: postgres
-    password: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate   # ?? ????? Flyway, ??????? schema ???????? ?? ?????
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:

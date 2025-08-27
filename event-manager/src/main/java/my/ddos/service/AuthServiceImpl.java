@@ -1,5 +1,6 @@
 package my.ddos.service;
 
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.login.LoginRequest;
 import my.ddos.model.dto.login.LoginResponse;
@@ -7,6 +8,7 @@ import my.ddos.model.dto.register.RegisterRequest;
 import my.ddos.model.dto.register.RegisterResponse;
 import my.ddos.model.entity.User;
 import my.ddos.repository.UserRepository;
+import my.ddos.validator.AuthValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,8 @@ public class AuthServiceImpl implements AuthService{
     private final JwtService jwtService;
 
     private final UserRepository userRepository;
+
+    private final AuthValidator validator;
     @Override
     public RegisterResponse register(RegisterRequest registerRequest) {
         validator.validateRegisterRequest(registerRequest);
