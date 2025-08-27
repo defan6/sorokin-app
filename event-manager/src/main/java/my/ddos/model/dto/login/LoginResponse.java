@@ -1,5 +1,6 @@
 package my.ddos.model.dto.login;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class LoginResponse {
 
     private String username;
 
+    @JsonIgnore
     private Set<Role> roles;
 
     private String accessToken;

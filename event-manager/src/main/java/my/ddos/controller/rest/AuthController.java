@@ -1,5 +1,8 @@
 package my.ddos.controller.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.login.LoginRequest;
 import my.ddos.model.dto.login.LoginResponse;
@@ -19,7 +22,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-
+    @Operation(summary = "Register New User", description = "Creates a New User")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully Registered"),
+            @ApiResponse(responseCode = "400", description = "User with this username already exists")
+    })
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest){
         return ResponseEntity.ok(authService.register(registerRequest));

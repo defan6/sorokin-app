@@ -2,10 +2,7 @@ package my.ddos.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import my.ddos.enums.UserRole;
 
 import java.util.HashSet;
@@ -26,7 +23,8 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "userRoles")
+    @EqualsAndHashCode.Exclude
     private Set<User> users = new HashSet<>();
 
     public Role(UserRole role) {

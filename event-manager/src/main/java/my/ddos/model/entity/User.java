@@ -16,7 +16,10 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username", unique = true)
+    }
+)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -41,11 +44,16 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @EqualsAndHashCode.Exclude
     private Set<Role> userRoles = new HashSet<>();
 
-    @OneToMany(mappedBy = "userRoles")
+    @OneToMany(mappedBy = "user")
+    @EqualsAndHashCode.Exclude
     private List<Booking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "organizer")
+    @EqualsAndHashCode.Exclude
     private List<Event> events = new ArrayList<>();
+
+
 }

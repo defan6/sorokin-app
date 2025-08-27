@@ -21,9 +21,9 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
-  jwt:
-    secret: "verySecretKey12345goihoigjiohfhdklnffuiehniunfejoifjelkfjeifdjojfeiodjlkfcmdflkgfjgoierjfgioioegioijeogjoiojgo"
-    expiration: 3600000
+jwt:
+  secret: "verySecretKey12345goihoigjiohfhdklnffuiehniunfejoifjelkfjeifdjojfeiodjlkfcmdflkgfjgoierjfgioioegioijeogjoiojgo"
+  expiration: 3600000
 success:
   register:
     message: "We were successfully registered"

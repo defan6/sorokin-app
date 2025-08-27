@@ -6,6 +6,7 @@ import my.ddos.model.dto.register.RegisterRequest;
 import my.ddos.model.dto.register.RegisterResponse;
 import my.ddos.model.entity.Role;
 import my.ddos.model.entity.User;
+import my.ddos.repository.RoleRepository;
 import my.ddos.repository.UserRepository;
 import org.hibernate.bytecode.internal.bytebuddy.PassThroughInterceptor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,16 +23,18 @@ public class UserServiceImpl implements UserService{
 
     private final PasswordEncoder passwordEncoder;
 
+    private final RoleRepository roleRepository;
+
     @Value("${success.register.message}")
     String successRegisterMessage;
 
     @Override
     public RegisterResponse save(RegisterRequest registerRequest) {
         Role role = new Role(UserRole.USER_ROLE);
-        User user = User.builder()
-                .username(registerRequest.getUsername())
-                .fullName(registerRequest.getFullName())
-                .build();
+        roleRepository.save(role);
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setFullName(registerRequest.getFullName());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.getUserRoles().add(role);
         role.getUsers().add(user);

@@ -24,5 +24,5 @@ public class Venue {
     private String address;
 
     @Column(name = "capacity")
-    private Integer capacity;
+    private Long capacity;
 }
