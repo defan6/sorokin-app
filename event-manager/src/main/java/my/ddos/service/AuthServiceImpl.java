@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         validator.validateLoginRequest(loginRequest);
-        User user = userRepository.findByUsername(loginRequest.getUsername());
+        User user = userRepository.findByUsername(loginRequest.getUsername()).get();
         String jwt = jwtService.createJwtToken(loginRequest);
         return LoginResponse.builder()
                 .id(user.getId())

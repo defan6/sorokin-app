@@ -18,6 +18,7 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Exclude
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -28,7 +29,9 @@ public class Role {
     private Set<User> users = new HashSet<>();
 
     public Role(UserRole role) {
+
         this.role = role;
+        this.users = new HashSet<>();
     }
 
 
