@@ -1,10 +1,9 @@
-package my.ddos.service;
+package my.ddos.service.user;
 
 import my.ddos.model.dto.ChangeRoleRequest;
 import my.ddos.model.dto.register.RegisterRequest;
 import my.ddos.model.dto.register.RegisterResponse;
 import my.ddos.model.dto.user.UserResponse;
-import org.springframework.security.core.Authentication;
 
 import java.util.List;
 

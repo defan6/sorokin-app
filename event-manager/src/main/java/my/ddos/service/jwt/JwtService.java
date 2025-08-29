@@ -1,8 +1,9 @@
-package my.ddos.service;
+package my.ddos.service.jwt;
 
 
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.login.LoginRequest;
+import my.ddos.service.CustomUserDetailsService;
 import my.ddos.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

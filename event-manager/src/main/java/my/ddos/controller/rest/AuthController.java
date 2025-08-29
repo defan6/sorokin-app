@@ -8,7 +8,7 @@ import my.ddos.model.dto.login.LoginRequest;
 import my.ddos.model.dto.login.LoginResponse;
 import my.ddos.model.dto.register.RegisterRequest;
 import my.ddos.model.dto.register.RegisterResponse;
-import my.ddos.service.AuthService;
+import my.ddos.service.auth.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "venues")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +27,7 @@ public class Venue {
 
     @Column(name = "capacity")
     private Long capacity;
+
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> events = new ArrayList<>();
 }

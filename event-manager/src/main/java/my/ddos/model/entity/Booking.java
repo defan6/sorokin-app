@@ -6,24 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import my.ddos.enums.BookingStatus;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-
-//CREATE TABLE registrations (
-//    id BIGSERIAL PRIMARY KEY,
-//    event_id BIGINT NOT NULL,
-//    user_id BIGINT NOT NULL,
-//    status VARCHAR(50) NOT NULL, -- REGISTERED / CANCELED
-//    registered_at TIMESTAMP DEFAULT now(),
-//    CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-//    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-//);
 @Entity
 @Table(name = "bookings")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,5 +32,6 @@ public class Booking {
     private BookingStatus bookingStatus;
 
     @Column(name = "registered_at")
+    @CreationTimestamp
     private LocalDateTime registeredAt;
 }

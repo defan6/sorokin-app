@@ -1,4 +1,4 @@
-package my.ddos.service;
+package my.ddos.service.auth;
 
 import my.ddos.model.dto.login.LoginRequest;
 import my.ddos.model.dto.login.LoginResponse;

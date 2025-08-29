@@ -7,11 +7,5 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {RoleMapper.class, BookingMapper.class})
 public interface UserMapper {
-
-    @Mapping(target = "userRoles", source = "userRoles")
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "fullName", source = "fullName")
-    @Mapping(target = "createdAt", source = "createdAt")
-    @Mapping(target = "bookings", source = "bookings")
     UserResponse toResponse(User entity);
 }
