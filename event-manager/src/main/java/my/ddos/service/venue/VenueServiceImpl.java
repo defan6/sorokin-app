@@ -56,6 +56,7 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
+    @Transactional
     public void deleteVenue(Long id) {
         Venue venue = venueRepository.findById(id)
                 .orElseThrow(() -> new VenueNotFoundException("Venue with id " + id + " not found"));

@@ -1,4 +1,8 @@
 package my.ddos.model.dto.booking;
 
-public record BookingRequest(Long eventId) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+public record BookingRequest(@NotNull @Positive Long eventId) {
 }

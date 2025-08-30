@@ -26,6 +26,6 @@ public interface BookingMapper {
 
     @Mapping(target = "eventName", expression = "java(booking.getEvent() != null ? booking.getEvent().getTitle() : null)")
     @Mapping(target = "username", expression = "java(booking.getUser() != null ? booking.getUser().getUsername() : null)")
-    @Mapping(target = "message", constant = "You were successfully registered. We'll wait you.")
-    RegisterBookingResponse toRegisterBookingResponse(Booking booking);
+    @Mapping(target = "message", source = "message")
+    RegisterBookingResponse toRegisterBookingResponse(String message, Booking booking);
 }

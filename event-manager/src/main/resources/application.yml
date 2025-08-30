@@ -27,3 +27,5 @@ jwt:
 success:
   register:
     message: "We were successfully registered"
+  booking:
+    message: "You were successfully registered. We'll wait you."

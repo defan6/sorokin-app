@@ -2,7 +2,7 @@ package my.ddos.controller.rest;
 
 
 import lombok.RequiredArgsConstructor;
-import my.ddos.model.dto.ChangeRoleRequest;
+import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.user.UserResponse;
 import my.ddos.service.user.UserService;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;

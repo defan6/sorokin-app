@@ -1,4 +1,4 @@
-package my.ddos.model.dto;
+package my.ddos.model.dto.role;
 
 
 import lombok.AllArgsConstructor;

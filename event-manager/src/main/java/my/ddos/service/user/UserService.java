@@ -1,6 +1,6 @@
 package my.ddos.service.user;
 
-import my.ddos.model.dto.ChangeRoleRequest;
+import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.register.RegisterRequest;
 import my.ddos.model.dto.register.RegisterResponse;
 import my.ddos.model.dto.user.UserResponse;

@@ -5,7 +5,7 @@ import my.ddos.enums.UserRole;
 import my.ddos.exception.RoleNotFoundException;
 import my.ddos.exception.UserNotFoundException;
 import my.ddos.mapper.UserMapper;
-import my.ddos.model.dto.ChangeRoleRequest;
+import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.register.RegisterRequest;
 import my.ddos.model.dto.register.RegisterResponse;
 import my.ddos.model.dto.user.UserResponse;
@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
     String successRegisterMessage;
 
     @Override
+    @Transactional
     public RegisterResponse save(RegisterRequest registerRequest) {
         Role userRole = roleRepository.findByRole(UserRole.ROLE_USER).orElseThrow(()-> new RoleNotFoundException("Role ROLE_USER not found"));
         User user = new User();
@@ -64,6 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse changeRole(ChangeRoleRequest changeRoleRequest) {
         User user = userRepository.findById(changeRoleRequest.getId()).orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
