@@ -1,4 +1,4 @@
-package my.ddos.model.dto.login;
+package com.ddos.auth.model.dto.login;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

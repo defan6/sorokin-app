@@ -1,4 +1,4 @@
-package my.ddos.util;
+package com.ddos.auth.util;
 
 
 import io.jsonwebtoken.Claims;
@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -48,9 +46,10 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.getExpiration());
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(String username, Set<String> roles){
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        claims.put("roles", roles);
+        return createToken(claims, username);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

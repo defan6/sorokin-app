@@ -1,4 +1,4 @@
-package my.ddos.exception;
+package com.ddos.auth.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
