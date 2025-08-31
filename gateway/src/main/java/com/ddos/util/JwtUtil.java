@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -45,5 +46,23 @@ public class JwtUtil {
 
     public Claims extractAllClaims(String token){
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+    }
+
+    public String extractUsername(String token){
+        return Jwts.parser()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    public List<String> extractRoles(String token){
+       Claims claims = Jwts.parser()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .parseClaimsJws(token)
+                .getBody();
+       return claims.get("roles", List.class);
+
+
     }
 }

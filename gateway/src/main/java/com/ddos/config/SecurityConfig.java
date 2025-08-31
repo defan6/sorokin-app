@@ -15,7 +15,14 @@ public class SecurityConfig {
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http){
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchanges -> exchanges.anyExchange().permitAll())
+                .authorizeExchange(exchanges ->
+                        exchanges
+                                .pathMatchers("/event-manager/api/venues/admin/**").hasRole("ADMIN")
+                                .pathMatchers("/event-manager/api/events/admin/**").hasRole("ADMIN")
+                                .pathMatchers("/event-manager/api/users/admin/**").hasRole("ADMIN")
+                                .pathMatchers("/event-manager/api/bookings/admin/**").hasRole("ADMIN")
+                                .pathMatchers("/event-manager/api/**").authenticated()
+                                .anyExchange().permitAll())
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .build();

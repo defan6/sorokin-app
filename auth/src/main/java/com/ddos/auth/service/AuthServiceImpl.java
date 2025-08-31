@@ -1,5 +1,7 @@
 package com.ddos.auth.service;
 
+import com.ddos.auth.kafka.controller.KafkaRegisterProducer;
+import com.ddos.auth.kafka.event.EventRegisterUser;
 import com.ddos.auth.mapper.AuthMapper;
 import com.ddos.auth.model.dto.login.LoginRequest;
 import com.ddos.auth.model.dto.login.LoginResponse;
@@ -37,6 +39,9 @@ public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
 
     private final AuthenticationManager authenticationManager;
+
+
+    private final KafkaRegisterProducer kafkaRegisterProducer;
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
@@ -44,6 +49,8 @@ public class AuthServiceImpl implements AuthService {
         Auth auth = authMapper.toAuth(registerRequest);
         auth.getRoles().add("USER_ROLE");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser(auth);
+        kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
         return authMapper.toRegisterResponse(authRepository.save(auth));
     }
 

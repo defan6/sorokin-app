@@ -1,5 +1,6 @@
 package com.ddos.auth.mapper;
 
+import com.ddos.auth.kafka.event.EventRegisterUser;
 import com.ddos.auth.model.dto.login.LoginResponse;
 import com.ddos.auth.model.dto.register.RegisterRequest;
 import com.ddos.auth.model.dto.register.RegisterResponse;
@@ -11,6 +12,7 @@ import org.mapstruct.Mapping;
 public interface AuthMapper {
 
     @Mapping(target = "username", expression = "java(auth != null ? auth.getUsername() : null)")
+    @Mapping(target = "fullName", expression = "java(auth != null ? auth.getFullName() : null)")
     @Mapping(target = "message", constant = "You were successfully registered.")
     RegisterResponse toRegisterResponse(Auth auth);
 
@@ -21,5 +23,9 @@ public interface AuthMapper {
     LoginResponse toLoginResponse(String jwt, Auth auth);
 
     @Mapping(target = "username", expression = "java(request.getUsername())")
+    @Mapping(target = "fullName", expression = "java(request.getFullName())")
     Auth toAuth(RegisterRequest request);
+
+
+    EventRegisterUser toEventRegisterUser(Auth auth);
 }

@@ -8,9 +8,9 @@ import my.ddos.model.dto.booking.UserBookingResponse;
 import java.util.List;
 
 public interface BookingService {
-    UserBookingResponse getMyBookings();
+    UserBookingResponse getMyBookings(String username);
 
     List<UserBookingResponse> getAllBookings();
 
-    RegisterBookingResponse createBooking(BookingRequest registerBookingRequest);
+    RegisterBookingResponse createBooking(BookingRequest registerBookingRequest, String username);
 }

@@ -14,6 +14,9 @@ public class KafkaTopicConfig {
     public static final String CHANGE_EVENT_INFO_TOPIC = "change-event-topic";
 
 
+    public static final String REGISTER_USER_TOPIC = "register-user-topic";
+
+
     @Bean
     public NewTopic createBookingTopic(){
         return TopicBuilder.name(BOOKING_TOPIC)

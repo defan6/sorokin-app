@@ -11,9 +11,9 @@ public interface EventService {
 
     List<EventResponse> getAllEvents();
 
-    EventResponse createEvent(EventRequest eventRequest);
+    EventResponse createEvent(EventRequest eventRequest, String username);
 
-    EventResponse patchEvent(Long id, PatchEventRequest patchEventRequest);
+    EventResponse patchEvent(Long id, PatchEventRequest patchEventRequest, String changedBy);
 
     void deleteEvent(Long id);
 }

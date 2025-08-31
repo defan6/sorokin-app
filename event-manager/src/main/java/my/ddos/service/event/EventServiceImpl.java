@@ -16,10 +16,6 @@ import my.ddos.model.entity.Venue;
 import my.ddos.repository.EventRepository;
 import my.ddos.repository.UserRepository;
 import my.ddos.repository.VenueRepository;
-import my.ddos.util.KafkaMessageConverter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +34,6 @@ public class EventServiceImpl implements EventService {
 
     private final KafkaChangeEventProducer kafkaChangeEventProducer;
 
-    private final KafkaMessageConverter kafkaMessageConverter;
 
     private final EventChangedEventMapper eventChangedEventMapper;
     @Override
@@ -54,11 +49,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventResponse createEvent(EventRequest eventRequest) {
+    public EventResponse createEvent(EventRequest eventRequest, String username) {
         Event event = eventMapper.toEntity(eventRequest);
-        String username = getCurrentUserUsername();
         User organizer = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found"));
+                .orElseThrow(() -> new RuntimeException("User with username " + username + " not found"));
         event.setOrganizer(organizer);
         Venue venue = venueRepository.findById(eventRequest.venueId())
                 .orElseThrow(() -> new VenueNotFoundException("Venue with id " + eventRequest.venueId() + " not found"));
@@ -68,13 +62,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventResponse patchEvent(Long id, PatchEventRequest patchEventRequest) {
+    public EventResponse patchEvent(Long id, PatchEventRequest patchEventRequest, String changedBy) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found."));
         patchEventRequest.title().ifPresent(event::setTitle);
         patchEventRequest.eventDate().ifPresent(event::setEventDate);
         patchEventRequest.description().ifPresent(event::setDescription);
-        String changedBy = getCurrentUserUsername();
         Event savedEvent = eventRepository.save(event);
         EventChangedEvent eventChangedEvent = eventChangedEventMapper.toEventChanged(savedEvent, changedBy);
         kafkaChangeEventProducer.sendToChangeEventTopic(eventChangedEvent);
@@ -89,8 +82,4 @@ public class EventServiceImpl implements EventService {
         eventRepository.delete(event);
     }
 
-    private static String getCurrentUserUsername(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
-    }
 }

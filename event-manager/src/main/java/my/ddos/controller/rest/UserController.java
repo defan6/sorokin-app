@@ -7,7 +7,7 @@ import my.ddos.model.dto.user.UserResponse;
 import my.ddos.service.user.UserService;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,19 +20,18 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getInfoAboutCurrentUser(Neo4jProperties.Authentication authentication){
-        return ResponseEntity.ok(userService.getInfoAboutCurrentUser());
+    public ResponseEntity<UserResponse> getInfoAboutCurrentUser(ServerHttpRequest request){
+        String username = request.getHeaders().getFirst("X-Username");
+        return ResponseEntity.ok(userService.getInfoAboutCurrentUser(username));
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
     public ResponseEntity<List<UserResponse>> getAllUsers(){
         return ResponseEntity.ok(userService.getAll());
     }
 
 
-    @PatchMapping("/change-role")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("admin/change-role")
     public ResponseEntity<UserResponse> changeRole(@RequestBody ChangeRoleRequest changeRoleRequest){
         return ResponseEntity.ok(userService.changeRole(changeRoleRequest));
     }

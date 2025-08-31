@@ -6,7 +6,7 @@ import my.ddos.model.dto.event.EventResponse;
 import my.ddos.model.dto.event.PatchEventRequest;
 import my.ddos.service.event.EventService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -29,22 +29,21 @@ public class EventController {
     }
 
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest){
-        EventResponse created = eventService.createEvent(eventRequest);
+    @PostMapping("/admin")
+    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest, ServerHttpRequest request){
+        String username = request.getHeaders().getFirst("X-Username");
+        EventResponse created = eventService.createEvent(eventRequest, username);
         URI location = URI.create("/api/events/" + created.id());
         return ResponseEntity.created(location).body(created);
     }
 
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventResponse> patchEvent(@PathVariable("id") Long id, @RequestBody PatchEventRequest patchEventRequest){
-        return ResponseEntity.ok(eventService.patchEvent(id, patchEventRequest));
+    @PatchMapping("/admin/{id}")
+    public ResponseEntity<EventResponse> patchEvent(@PathVariable("id") Long id, @RequestBody PatchEventRequest patchEventRequest, ServerHttpRequest request){
+        String username = request.getHeaders().getFirst("X-Username");
+        return ResponseEntity.ok(eventService.patchEvent(id, patchEventRequest, username));
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable("id") Long id){
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();

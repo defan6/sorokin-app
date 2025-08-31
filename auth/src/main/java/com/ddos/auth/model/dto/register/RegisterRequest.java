@@ -19,6 +19,10 @@ public class RegisterRequest {
     @Size(min = 3, max = 20, message = "Username size must be between ${min} and ${max}")
     private String username;
 
+    @NotBlank(message = "Full name cannot be empty")
+    @Size(min = 3, max = 20, message = "Username size must be between ${min} and ${max}")
+    private String fullName;
+
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 4, max = 30, message = "Password size must be between ${min} and ${max}")
     private String password;

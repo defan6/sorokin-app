@@ -17,11 +17,8 @@ import my.ddos.model.entity.User;
 import my.ddos.repository.BookingRepository;
 import my.ddos.repository.EventRepository;
 import my.ddos.repository.UserRepository;
-import my.ddos.util.KafkaMessageConverter;
 import my.ddos.validator.BookingValidator;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,8 +47,7 @@ public class BookingServiceImpl implements BookingService{
 
     private final BookingValidator bookingValidator;
     @Override
-    public UserBookingResponse getMyBookings() {
-        String username = getCurrentUserUsername();
+    public UserBookingResponse getMyBookings(String username) {
         List<Booking> bookings = bookingRepository.findAllByUserUsername(username);
         List<BookingResponse> bookingResponses = bookings.stream().map(bookingMapper::toResponse).toList();
         return bookingMapper.toUserBookingResponse(username, bookingResponses);
@@ -72,8 +68,7 @@ public class BookingServiceImpl implements BookingService{
 
     @Override
     @Transactional
-    public RegisterBookingResponse createBooking(BookingRequest bookingRequest) {
-        String username = getCurrentUserUsername();
+    public RegisterBookingResponse createBooking(BookingRequest bookingRequest, String username) {
 
         bookingValidator.validateBookingRequest(bookingRequest, username);
 
@@ -93,12 +88,5 @@ public class BookingServiceImpl implements BookingService{
         kafkaBookingProducer.sendToBookingTopic(eventBooking);
 
         return bookingMapper.toRegisterBookingResponse(successBookingMessage, savedBooking);
-    }
-
-
-    private static String getCurrentUserUsername(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        return username;
     }
 }
