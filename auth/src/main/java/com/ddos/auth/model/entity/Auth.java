@@ -5,13 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "auth")
+@Table(name = "auths")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -26,6 +24,12 @@ public class Auth {
     @Column(nullable = false)
     private String password;
 
+
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "auth_roles",
+            joinColumns = @JoinColumn(name = "auth_id")
+    )
+    @Column(name = "roles")
     private Set<String> roles = new HashSet<>();
 }

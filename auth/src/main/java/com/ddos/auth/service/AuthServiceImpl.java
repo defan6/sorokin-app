@@ -42,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     public RegisterResponse register(RegisterRequest registerRequest) {
         validator.validateRegisterRequest(registerRequest);
         Auth auth = authMapper.toAuth(registerRequest);
+        auth.getRoles().add("USER_ROLE");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         return authMapper.toRegisterResponse(authRepository.save(auth));
     }
