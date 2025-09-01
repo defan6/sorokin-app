@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/events")
+@RequestMapping("/api/manager/events")
 public class EventController {
 
     private final EventService eventService;
@@ -30,16 +30,17 @@ public class EventController {
 
 
     @PostMapping("/admin")
-    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest, ServerHttpRequest request){
-        String username = request.getHeaders().getFirst("X-Username");
+    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest,
+                                                     @RequestHeader("X-Username") String username){
         EventResponse created = eventService.createEvent(eventRequest, username);
         URI location = URI.create("/api/events/" + created.id());
         return ResponseEntity.created(location).body(created);
     }
 
     @PatchMapping("/admin/{id}")
-    public ResponseEntity<EventResponse> patchEvent(@PathVariable("id") Long id, @RequestBody PatchEventRequest patchEventRequest, ServerHttpRequest request){
-        String username = request.getHeaders().getFirst("X-Username");
+    public ResponseEntity<EventResponse> patchEvent(@PathVariable("id") Long id,
+                                                    @RequestBody PatchEventRequest patchEventRequest,
+                                                    @RequestHeader("X-Username") String username){
         return ResponseEntity.ok(eventService.patchEvent(id, patchEventRequest, username));
     }
 

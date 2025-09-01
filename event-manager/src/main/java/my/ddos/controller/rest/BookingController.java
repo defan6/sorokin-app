@@ -14,14 +14,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/bookings")
+@RequestMapping("/api/manager/bookings")
 public class BookingController {
 
     private final BookingService bookingService;
 
     @GetMapping("/my")
-    public ResponseEntity<UserBookingResponse> getAllMyBookings(ServerHttpRequest request){
-        String username = request.getHeaders().getFirst("X-Username");
+    public ResponseEntity<UserBookingResponse> getAllMyBookings(@RequestHeader("X-Username") String username){
         return ResponseEntity.ok(bookingService.getMyBookings(username));
     }
 
@@ -32,8 +31,8 @@ public class BookingController {
 
 
     @PostMapping
-    public ResponseEntity<RegisterBookingResponse> createBooking(@RequestBody BookingRequest bookingRequest, ServerHttpRequest request) {
-        String username = request.getHeaders().getFirst("X-Username");
+    public ResponseEntity<RegisterBookingResponse> createBooking(@RequestBody BookingRequest bookingRequest,
+                                                                 @RequestHeader("X-Username") String username) {
         return ResponseEntity.ok(bookingService.createBooking(bookingRequest, username));
     }
 }

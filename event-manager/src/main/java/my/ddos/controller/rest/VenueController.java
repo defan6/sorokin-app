@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/venues/admin")
+@RequestMapping("/api/manager/venues/admin")
 public class VenueController {
 
     private final VenueService venueService;
@@ -27,7 +27,7 @@ public class VenueController {
     @PostMapping
     public ResponseEntity<VenueResponse> createVenue(@RequestBody VenueRequest venueRequest){
         VenueResponse created = venueService.create(venueRequest);
-        URI location = URI.create("api/venues/" + created.getId());
+        URI location = URI.create("api/venues/admin/" + created.getId());
         return ResponseEntity.created(location).body(created);
     }
 

@@ -6,7 +6,8 @@ import com.ddos.auth.model.dto.register.RegisterRequest;
 import com.ddos.auth.model.dto.register.RegisterResponse;
 
 public interface AuthService {
-    RegisterResponse register(RegisterRequest registerRequest);
+    RegisterResponse registerUser(RegisterRequest registerRequest);
+    RegisterResponse registerAdmin(RegisterRequest registerRequest);
 
     LoginResponse login(LoginRequest loginRequest);
 }

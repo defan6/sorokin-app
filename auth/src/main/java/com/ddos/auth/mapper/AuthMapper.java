@@ -26,6 +26,6 @@ public interface AuthMapper {
     @Mapping(target = "fullName", expression = "java(request.getFullName())")
     Auth toAuth(RegisterRequest request);
 
-
-    EventRegisterUser toEventRegisterUser(Auth auth);
+    @Mapping(target = "role", source = "role")
+    EventRegisterUser toEventRegisterUser(String role, Auth auth);
 }

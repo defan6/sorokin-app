@@ -11,6 +11,7 @@ import com.ddos.auth.model.entity.Auth;
 import com.ddos.auth.repository.AuthRepository;
 import com.ddos.auth.validator.AuthValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
 
@@ -44,12 +46,26 @@ public class AuthServiceImpl implements AuthService {
     private final KafkaRegisterProducer kafkaRegisterProducer;
     @Override
     @Transactional
-    public RegisterResponse register(RegisterRequest registerRequest) {
+
+    public RegisterResponse registerUser(RegisterRequest registerRequest) {
         validator.validateRegisterRequest(registerRequest);
         Auth auth = authMapper.toAuth(registerRequest);
-        auth.getRoles().add("USER_ROLE");
+        auth.getRoles().add("ROLE_USER");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser(auth);
+        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_USER", auth);
+        kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
+        return authMapper.toRegisterResponse(authRepository.save(auth));
+    }
+
+    @Override
+    @Transactional
+    public RegisterResponse registerAdmin(RegisterRequest registerRequest) {
+        validator.validateRegisterRequest(registerRequest);
+        Auth auth = authMapper.toAuth(registerRequest);
+        auth.getRoles().add("ROLE_ADMIN");
+        auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_ADMIN", auth);
+        log.info("event-register-admin : ", eventRegisterUser);
         kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
         return authMapper.toRegisterResponse(authRepository.save(auth));
     }
