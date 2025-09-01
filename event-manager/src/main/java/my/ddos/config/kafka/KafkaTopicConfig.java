@@ -13,6 +13,8 @@ public class KafkaTopicConfig {
 
     public static final String CHANGE_EVENT_INFO_TOPIC = "change-event-topic";
 
+    public static final String CHANGE_USER_ROLE_TOPIC = "change-user-role-topic";
+
 
     public static final String REGISTER_USER_TOPIC = "register-user-topic";
 
@@ -29,6 +31,15 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic createChangeEventInfoTopic(){
         return TopicBuilder.name(CHANGE_EVENT_INFO_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+
+    @Bean
+    public NewTopic createChangeUserRoleTopic(){
+        return TopicBuilder.name(CHANGE_USER_ROLE_TOPIC)
                 .partitions(3)
                 .replicas(1)
                 .build();

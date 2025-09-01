@@ -32,7 +32,8 @@ public class UserController {
 
 
     @PatchMapping("admin/change-role")
-    public ResponseEntity<UserResponse> changeRole(@RequestBody ChangeRoleRequest changeRoleRequest){
-        return ResponseEntity.ok(userService.changeRole(changeRoleRequest));
+    public ResponseEntity<UserResponse> changeRole(@RequestHeader("X-Username") String changedBy,
+                                                   @RequestBody ChangeRoleRequest changeRoleRequest){
+        return ResponseEntity.ok(userService.changeRole(changedBy, changeRoleRequest));
     }
 }

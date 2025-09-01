@@ -63,7 +63,8 @@ public class JwtUtil {
     }
 
 
-    private Key getSigningKey() {
+    private Key
+    getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 }

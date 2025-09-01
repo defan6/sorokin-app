@@ -26,3 +26,6 @@ success:
     message: "We were successfully registered"
   booking:
     message: "You were successfully registered. We'll wait you."
+  cancel:
+    booking:
+      message: "Your booking was cancelled."

@@ -3,13 +3,11 @@ package my.ddos.service.booking;
 import lombok.RequiredArgsConstructor;
 import my.ddos.controller.kafka.KafkaBookingProducer;
 import my.ddos.enums.BookingStatus;
+import my.ddos.exception.BookingNotFoundException;
 import my.ddos.exception.EventNotFoundException;
 import my.ddos.mapper.BookingMapper;
 import my.ddos.mapper.EventBookingMapper;
-import my.ddos.model.dto.booking.BookingRequest;
-import my.ddos.model.dto.booking.BookingResponse;
-import my.ddos.model.dto.booking.RegisterBookingResponse;
-import my.ddos.model.dto.booking.UserBookingResponse;
+import my.ddos.model.dto.booking.*;
 import my.ddos.model.dto.kafka.EventBooking;
 import my.ddos.model.entity.Booking;
 import my.ddos.model.entity.Event;
@@ -32,6 +30,9 @@ public class BookingServiceImpl implements BookingService{
 
     @Value("${success.booking.message}")
     private String successBookingMessage;
+
+    @Value("${success.cancel.booking.message}")
+    private String successCancelBookingMessage;
 
     private final BookingRepository bookingRepository;
 
@@ -88,5 +89,22 @@ public class BookingServiceImpl implements BookingService{
         kafkaBookingProducer.sendToBookingTopic(eventBooking);
 
         return bookingMapper.toRegisterBookingResponse(successBookingMessage, savedBooking);
+    }
+
+    @Override
+    public void cancelBooking(String username, CancelBookingRequest cancelBookingRequest) {
+        Booking booking = bookingRepository
+                .findById(cancelBookingRequest.bookingId())
+                .orElseThrow(() -> new BookingNotFoundException
+                        ("Booking with id " + cancelBookingRequest.bookingId() + " not found"));
+        User user = userRepository.findByUsername(username).get();
+        if(!booking.getUser().getId().equals(user.getId())){
+            throw new BookingNotFoundException("Booking with id " + cancelBookingRequest.bookingId() + " not found");
+        }
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+        EventBooking eventBooking = eventBookingMapper.toEventBooking(successCancelBookingMessage, booking);
+
+        kafkaBookingProducer.sendToBookingTopic(eventBooking);
+        bookingRepository.save(booking);
     }
 }

@@ -2,9 +2,11 @@ package my.ddos.service.user;
 
 import lombok.RequiredArgsConstructor;
 import my.ddos.enums.UserRole;
+import my.ddos.event.EventChangedRole;
 import my.ddos.event.EventRegisterUser;
 import my.ddos.exception.RoleNotFoundException;
 import my.ddos.exception.UserNotFoundException;
+import my.ddos.mapper.EventChangedRoleMapper;
 import my.ddos.mapper.UserMapper;
 import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.user.UserResponse;
@@ -27,6 +29,8 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     private final UserMapper userMapper;
+
+    private final EventChangedRoleMapper eventChangedRoleMapper;
 
     @Value("${success.register.message}")
     String successRegisterMessage;
@@ -54,13 +58,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse changeRole(ChangeRoleRequest changeRoleRequest) {
+    public UserResponse changeRole(String changedBy, ChangeRoleRequest changeRoleRequest) {
         User user = userRepository.findById(changeRoleRequest.getId()).orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
         Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException("Role " + role
                 + " not found"));
         user.getUserRoles().add(userRole);
         User savedUser = userRepository.save(user);
+        EventChangedRole eventChangedRole = eventChangedRoleMapper
+                .toEventChangedRole(user.getUsername(),changedBy, role.name());
+
         return userMapper.toResponse(savedUser);
     }
 }

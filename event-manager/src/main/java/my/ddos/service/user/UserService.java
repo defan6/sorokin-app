@@ -13,5 +13,5 @@ public interface UserService {
 
     List<UserResponse> getAll();
 
-    UserResponse changeRole(ChangeRoleRequest changeRoleRequest);
+    UserResponse changeRole(String changedBy, ChangeRoleRequest changeRoleRequest);
 }

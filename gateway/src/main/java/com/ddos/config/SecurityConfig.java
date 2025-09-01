@@ -31,7 +31,7 @@ public class SecurityConfig {
                                 .pathMatchers("/api/manager/**").authenticated()
                                 .anyExchange().permitAll())
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION) //was problem here
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .build();
     }
