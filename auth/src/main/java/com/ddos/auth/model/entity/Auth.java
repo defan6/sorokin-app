@@ -34,6 +34,5 @@ public class Auth {
             name = "auth_roles",
             joinColumns = @JoinColumn(name = "auth_id")
     )
-    @Column(name = "roles")
     private Set<String> roles = new HashSet<>();
 }

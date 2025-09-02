@@ -1,5 +1,6 @@
 package com.ddos.auth.service;
 
+import com.ddos.auth.kafka.event.EventChangedRole;
 import com.ddos.auth.model.dto.login.LoginRequest;
 import com.ddos.auth.model.dto.login.LoginResponse;
 import com.ddos.auth.model.dto.register.RegisterRequest;
@@ -10,4 +11,6 @@ public interface AuthService {
     RegisterResponse registerAdmin(RegisterRequest registerRequest);
 
     LoginResponse login(LoginRequest loginRequest);
+
+    void changeRole(EventChangedRole eventChangedRole);
 }

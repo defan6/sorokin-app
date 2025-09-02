@@ -1,6 +1,7 @@
 package com.ddos.auth.service;
 
 import com.ddos.auth.kafka.controller.KafkaRegisterProducer;
+import com.ddos.auth.kafka.event.EventChangedRole;
 import com.ddos.auth.kafka.event.EventRegisterUser;
 import com.ddos.auth.mapper.AuthMapper;
 import com.ddos.auth.model.dto.login.LoginRequest;
@@ -42,11 +43,11 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
 
-
     private final KafkaRegisterProducer kafkaRegisterProducer;
+
+
     @Override
     @Transactional
-
     public RegisterResponse registerUser(RegisterRequest registerRequest) {
         validator.validateRegisterRequest(registerRequest);
         Auth auth = authMapper.toAuth(registerRequest);
@@ -65,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         auth.getRoles().add("ROLE_ADMIN");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_ADMIN", auth);
-        log.info("event-register-admin : ", eventRegisterUser);
+        log.info("event-register-admin : {}", eventRegisterUser);
         kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
         return authMapper.toRegisterResponse(authRepository.save(auth));
     }
@@ -80,5 +81,12 @@ public class AuthServiceImpl implements AuthService {
         Set<String> roles = authentication.getAuthorities().stream().map(authority -> authority.getAuthority()).collect(Collectors.toSet());
         String jwt = jwtService.createJwtToken(username, roles);
         return new LoginResponse(username, roles, jwt);
+    }
+
+    @Override
+    public void changeRole(EventChangedRole eventChangedRole) {
+        Auth auth = authRepository.findByUsername(eventChangedRole.username()).orElseThrow();
+        auth.getRoles().add(eventChangedRole.role());
+        authRepository.save(auth);
     }
 }

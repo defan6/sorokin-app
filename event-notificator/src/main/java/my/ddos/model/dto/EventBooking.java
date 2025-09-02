@@ -1,4 +1,4 @@
-package my.ddos.model.dto.kafka;
+package my.ddos.model.dto;
 
 import my.ddos.enums.BookingStatus;
 

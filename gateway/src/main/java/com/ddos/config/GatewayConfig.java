@@ -26,7 +26,7 @@ public class GatewayConfig {
                         }))
                         .uri("http://localhost:8082"))
                 .route("event-notification", r -> r
-                        .path("/api/notification/**")
+                        .path("/api/notificator/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to event-notification: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);

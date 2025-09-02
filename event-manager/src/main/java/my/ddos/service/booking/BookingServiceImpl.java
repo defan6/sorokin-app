@@ -84,7 +84,7 @@ public class BookingServiceImpl implements BookingService{
         booking.setEvent(event);
 
         Booking savedBooking = bookingRepository.save(booking);
-        EventBooking eventBooking = eventBookingMapper.toEventBooking(successBookingMessage, savedBooking);
+        EventBooking eventBooking = eventBookingMapper.toEventBooking(username, successBookingMessage, savedBooking);
 
         kafkaBookingProducer.sendToBookingTopic(eventBooking);
 
@@ -102,7 +102,7 @@ public class BookingServiceImpl implements BookingService{
             throw new BookingNotFoundException("Booking with id " + cancelBookingRequest.bookingId() + " not found");
         }
         booking.setBookingStatus(BookingStatus.CANCELLED);
-        EventBooking eventBooking = eventBookingMapper.toEventBooking(successCancelBookingMessage, booking);
+        EventBooking eventBooking = eventBookingMapper.toEventBooking(username, successCancelBookingMessage, booking);
 
         kafkaBookingProducer.sendToBookingTopic(eventBooking);
         bookingRepository.save(booking);

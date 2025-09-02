@@ -1,6 +1,7 @@
 package my.ddos.service.user;
 
 import lombok.RequiredArgsConstructor;
+import my.ddos.controller.kafka.KafkaChangedRoleProducer;
 import my.ddos.enums.UserRole;
 import my.ddos.event.EventChangedRole;
 import my.ddos.event.EventRegisterUser;
@@ -31,6 +32,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     private final EventChangedRoleMapper eventChangedRoleMapper;
+
+    private final KafkaChangedRoleProducer kafkaChangedRoleProducer;
 
     @Value("${success.register.message}")
     String successRegisterMessage;
@@ -67,7 +70,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
         EventChangedRole eventChangedRole = eventChangedRoleMapper
                 .toEventChangedRole(user.getUsername(),changedBy, role.name());
-
+        kafkaChangedRoleProducer.sendToChangedRoleTopic(eventChangedRole);
         return userMapper.toResponse(savedUser);
     }
 }

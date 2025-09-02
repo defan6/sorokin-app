@@ -29,6 +29,7 @@ public class SecurityConfig {
                                 .pathMatchers("/api/manager/users/admin/**").hasRole("ADMIN")
                                 .pathMatchers("/api/manager/bookings/admin/**").hasRole("ADMIN")
                                 .pathMatchers("/api/manager/**").authenticated()
+                                .pathMatchers("/api/notificator/**").authenticated()
                                 .anyExchange().permitAll())
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION) //was problem here
