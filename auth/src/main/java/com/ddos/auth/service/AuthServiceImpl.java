@@ -75,10 +75,15 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
         validator.validateLoginRequest(loginRequest);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         String username = authentication.getName();
-        Set<String> roles = authentication.getAuthorities().stream().map(authority -> authority.getAuthority()).collect(Collectors.toSet());
+        Set<String> roles = authentication
+                .getAuthorities()
+                .stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.toSet());
         String jwt = jwtService.createJwtToken(username, roles);
         return new LoginResponse(username, roles, jwt);
     }

@@ -16,6 +16,7 @@ import my.ddos.model.entity.Venue;
 import my.ddos.repository.EventRepository;
 import my.ddos.repository.UserRepository;
 import my.ddos.repository.VenueRepository;
+import my.ddos.validator.EventValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,8 @@ public class EventServiceImpl implements EventService {
     private  final UserRepository userRepository;
 
     private final KafkaChangeEventProducer kafkaChangeEventProducer;
+
+    private final EventValidator eventValidator;
 
 
     private final EventChangedEventMapper eventChangedEventMapper;

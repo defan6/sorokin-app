@@ -41,7 +41,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.createBooking(bookingRequest, username));
     }
 
-    @PostMapping("/{id}/cancel")
+    @PostMapping("/cancel")
     public ResponseEntity<String> cancelBooking(@RequestBody CancelBookingRequest cancelBookingRequest,
                                                 @RequestHeader("X-Username") String username) {
         bookingService.cancelBooking(username, cancelBookingRequest);

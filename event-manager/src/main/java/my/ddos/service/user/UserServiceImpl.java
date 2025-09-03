@@ -42,7 +42,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void save(EventRegisterUser eventRegisterUser) {
         UserRole userRole = UserRole.fromString(eventRegisterUser.role());
-        Role role = roleRepository.findByRole(userRole).orElseThrow(()-> new RoleNotFoundException("Role " + userRole +  " not found"));
+        Role role = roleRepository.findByRole(userRole)
+                .orElseThrow(()-> new RoleNotFoundException("Role " + userRole +  " not found"));
         User user = userMapper.toEntity(eventRegisterUser);
         user.getUserRoles().add(role);
         userRepository.save(user);
@@ -62,7 +63,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse changeRole(String changedBy, ChangeRoleRequest changeRoleRequest) {
-        User user = userRepository.findById(changeRoleRequest.getId()).orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
+        User user = userRepository.findById(changeRoleRequest.getId())
+                .orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
         Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException("Role " + role
                 + " not found"));

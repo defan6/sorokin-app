@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import my.ddos.enums.BookingStatus;
 import my.ddos.enums.ReadStatus;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -27,5 +28,7 @@ public class Notification {
     private BookingStatus bookingStatus;
     @Enumerated(EnumType.STRING)
     private ReadStatus readStatus;
+
+    @CreationTimestamp
     private LocalDateTime registeredAt;
 }
