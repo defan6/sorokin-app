@@ -17,21 +17,21 @@ public class GatewayConfig {
                             System.out.println("[Gateway] Routing to auth-service: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri("http://localhost:8081"))
+                        .uri("http://auth:8080"))
                 .route("event-manager", r -> r
                         .path("/api/manager/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to event-manager: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri("http://localhost:8082"))
-                .route("event-notification", r -> r
+                        .uri("http://event-manager:8080"))
+                .route("event-notificatior", r -> r
                         .path("/api/notificator/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to event-notification: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri("http://localhost:8083"))
+                        .uri("http://event-notificator:8080"))
                 .build();
     }
 }

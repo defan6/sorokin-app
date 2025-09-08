@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VenueRequest {
-    @NotBlank
+    @NotBlank(message = "name cannot be empty")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "address cannot be empty")
     private String address;
 
-    @Positive
+    @Positive(message = "capacity must be positive")
     private Long capacity;
 }

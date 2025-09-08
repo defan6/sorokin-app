@@ -1,14 +1,13 @@
-server:
-  port: 8083
-
 spring:
   application:
     name: event-notificator
   datasource:
-    url: jdbc:postgresql://localhost:5432/event_notificator_db
+    url: jdbc:postgresql://postgres:5432/event_notificator_db
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: kafka:9092
 
   jpa:
     hibernate:

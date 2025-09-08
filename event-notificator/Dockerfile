@@ -18,6 +18,6 @@ RUN curl -sSL https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wai
 
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8083
 
 ENTRYPOINT ["/wait-for-it.sh", "kafka:9092", "--", "/wait-for-it.sh", "postgres:5432", "--", "/wait-for-it.sh", "gateway:8080", "--", "java", "-jar", "app.jar"]
