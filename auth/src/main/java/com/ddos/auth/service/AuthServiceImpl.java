@@ -49,26 +49,33 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public RegisterResponse registerUser(RegisterRequest registerRequest) {
+        log.info("Started register default user...");
         validator.validateRegisterRequest(registerRequest);
         Auth auth = authMapper.toAuth(registerRequest);
         auth.getRoles().add("ROLE_USER");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_USER", auth);
         kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
-        return authMapper.toRegisterResponse(authRepository.save(auth));
+        log.info("Send new default user to kafka: {}", eventRegisterUser);
+        Auth saved = authRepository.save(auth);
+        log.info("Default user was registered!");
+        return authMapper.toRegisterResponse(saved);
     }
 
     @Override
     @Transactional
     public RegisterResponse registerAdmin(RegisterRequest registerRequest) {
+        log.info("Started register admin...");
         validator.validateRegisterRequest(registerRequest);
         Auth auth = authMapper.toAuth(registerRequest);
         auth.getRoles().add("ROLE_ADMIN");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_ADMIN", auth);
-        log.info("event-register-admin : {}", eventRegisterUser);
         kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
-        return authMapper.toRegisterResponse(authRepository.save(auth));
+        log.info("Send new admin to kafka: {}", eventRegisterUser);
+        Auth saved = authRepository.save(auth);
+        log.info("Admin was registered!");
+        return authMapper.toRegisterResponse(saved);
     }
 
     @Override
@@ -77,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
         validator.validateLoginRequest(loginRequest);
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+        log.info("Started authenticate: " + loginRequest.getUsername());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         String username = authentication.getName();
         Set<String> roles = authentication
@@ -85,13 +93,16 @@ public class AuthServiceImpl implements AuthService {
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.toSet());
         String jwt = jwtService.createJwtToken(username, roles);
+        log.info("Successfully authenticate: " + loginRequest.getUsername());
         return new LoginResponse(username, roles, jwt);
     }
 
     @Override
     public void changeRole(EventChangedRole eventChangedRole) {
+        log.info("Starting change role for " + eventChangedRole.username());
         Auth auth = authRepository.findByUsername(eventChangedRole.username()).orElseThrow();
         auth.getRoles().add(eventChangedRole.role());
+        log.info("Successfully changed role for " + eventChangedRole.username() + " by " + eventChangedRole.changedBy());
         authRepository.save(auth);
     }
 }

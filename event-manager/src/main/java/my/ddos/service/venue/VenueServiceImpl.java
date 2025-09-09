@@ -1,6 +1,7 @@
 package my.ddos.service.venue;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import my.ddos.exception.VenueNotFoundException;
 import my.ddos.mapper.VenueMapper;
 import my.ddos.model.dto.venue.PatchVenueRequest;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
@@ -30,9 +32,12 @@ public class VenueServiceImpl implements VenueService {
     @Override
     @Transactional
     public VenueResponse create(VenueRequest venueRequest) {
+        log.info("Start creating new venue " + venueRequest.getName() + "...");
         venueValidator.validateVenueRequest(venueRequest);
         Venue venue = venueMapper.toEntity(venueRequest);
-        return venueMapper.toResponse(venueRepository.save(venue));
+        Venue savedVenue = venueRepository.save(venue);
+        log.info("Venue " + venue.getName() + " was created!");
+        return venueMapper.toResponse(savedVenue);
     }
 
 
@@ -61,5 +66,6 @@ public class VenueServiceImpl implements VenueService {
         Venue venue = venueRepository.findById(id)
                 .orElseThrow(() -> new VenueNotFoundException("Venue with id " + id + " not found"));
         venueRepository.deleteById(id);
+        log.info("Venue " + venue.getName() + " was deleted");
     }
 }
