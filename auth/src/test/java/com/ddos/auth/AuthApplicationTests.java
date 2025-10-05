@@ -8,6 +8,7 @@ class AuthApplicationTests {
 
 	@Test
 	void contextLoads() {
+		System.out.println("Context loads");
 	}
 
 }

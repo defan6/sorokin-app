@@ -33,5 +33,12 @@ success:
 jwt:
   secret: "verySecretKey12345goihoigjiohfhdklnffuiehniunfejoifjelkfjeifdjojfeiodjlkfcmdflkgfjgoierjfgioioegioijeogjoiojgo"
   expiration: 3600000
+swagger:
+  enabled: true
+  path: /swagger-ui.html
+  base-package: com.ddos.auth.controller
+  title: Auth Service API
+  description: API documentation for Auth Service
+  version: 1.0.0
 
 

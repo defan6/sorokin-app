@@ -17,3 +17,4 @@ public class ExceptionBody {
         this.message = message;
     }
 }
+

@@ -43,6 +43,7 @@ public class AuthValidator {
         if(!errors.isEmpty()){
             throw new LoginValidateException(errors);
         }
+        
         if(!authRepository.existsByUsername(loginRequest.getUsername())){
             throw new UsernameNotFoundException("User with username " + loginRequest.getUsername() + " does not exist");
         }
