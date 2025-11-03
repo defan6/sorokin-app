@@ -7,4 +7,4 @@ foreach ($service in $services) {
     Set-Location ..
 }
 
-Write-Host "All services are built successfull!!!!!!!!!"
+Write-Host "All services are built successfully!!!!1"
