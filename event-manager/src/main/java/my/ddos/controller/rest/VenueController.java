@@ -6,7 +6,6 @@ import my.ddos.model.dto.venue.VenueRequest;
 import my.ddos.model.dto.venue.VenueResponse;
 import my.ddos.service.venue.VenueService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -14,8 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/venues")
-@PreAuthorize("hasRole('ADMIN')")
+@RequestMapping("/api/manager/venues/admin")
 public class VenueController {
 
     private final VenueService venueService;
@@ -29,7 +27,7 @@ public class VenueController {
     @PostMapping
     public ResponseEntity<VenueResponse> createVenue(@RequestBody VenueRequest venueRequest){
         VenueResponse created = venueService.create(venueRequest);
-        URI location = URI.create("api/venues/" + created.getId());
+        URI location = URI.create("api/venues/admin/" + created.getId());
         return ResponseEntity.created(location).body(created);
     }
 

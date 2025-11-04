@@ -3,7 +3,6 @@ package my.ddos.controller.kafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.ddos.model.dto.kafka.EventChangedEvent;
-import my.ddos.util.KafkaMessageConverter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;

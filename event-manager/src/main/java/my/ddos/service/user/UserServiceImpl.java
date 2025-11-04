@@ -1,23 +1,21 @@
 package my.ddos.service.user;
 
 import lombok.RequiredArgsConstructor;
+import my.ddos.controller.kafka.KafkaChangedRoleProducer;
 import my.ddos.enums.UserRole;
+import my.ddos.event.EventChangedRole;
+import my.ddos.event.EventRegisterUser;
 import my.ddos.exception.RoleNotFoundException;
 import my.ddos.exception.UserNotFoundException;
+import my.ddos.mapper.EventChangedRoleMapper;
 import my.ddos.mapper.UserMapper;
 import my.ddos.model.dto.role.ChangeRoleRequest;
-import my.ddos.model.dto.register.RegisterRequest;
-import my.ddos.model.dto.register.RegisterResponse;
 import my.ddos.model.dto.user.UserResponse;
 import my.ddos.model.entity.Role;
 import my.ddos.model.entity.User;
 import my.ddos.repository.RoleRepository;
 import my.ddos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,35 +27,32 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
     private final RoleRepository roleRepository;
 
     private final UserMapper userMapper;
+
+    private final EventChangedRoleMapper eventChangedRoleMapper;
+
+    private final KafkaChangedRoleProducer kafkaChangedRoleProducer;
 
     @Value("${success.register.message}")
     String successRegisterMessage;
 
     @Override
     @Transactional
-    public RegisterResponse save(RegisterRequest registerRequest) {
-        Role userRole = roleRepository.findByRole(UserRole.ROLE_USER).orElseThrow(()-> new RoleNotFoundException("Role ROLE_USER not found"));
-        User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setFullName(registerRequest.getFullName());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.getUserRoles().add(userRole);
+    public void save(EventRegisterUser eventRegisterUser) {
+        UserRole userRole = UserRole.fromString(eventRegisterUser.role());
+        Role role = roleRepository.findByRole(userRole)
+                .orElseThrow(()-> new RoleNotFoundException("Role " + userRole +  " not found"));
+        User user = userMapper.toEntity(eventRegisterUser);
+        user.getUserRoles().add(role);
         userRepository.save(user);
-        return new RegisterResponse(user.getUsername(), successRegisterMessage);
-
     }
 
     @Override
-    public UserResponse getInfoAboutCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User currentUser = userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("User with username " + username + " not found."));
-        return userMapper.toResponse(currentUser);
+    public UserResponse getInfoAboutCurrentUser(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        return userMapper.toResponse(user);
     }
 
     @Override
@@ -67,13 +62,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse changeRole(ChangeRoleRequest changeRoleRequest) {
-        User user = userRepository.findById(changeRoleRequest.getId()).orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
+    public UserResponse changeRole(String changedBy, ChangeRoleRequest changeRoleRequest) {
+        User user = userRepository.findById(changeRoleRequest.getId())
+                .orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
         Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException("Role " + role
                 + " not found"));
         user.getUserRoles().add(userRole);
         User savedUser = userRepository.save(user);
+        EventChangedRole eventChangedRole = eventChangedRoleMapper
+                .toEventChangedRole(user.getUsername(),changedBy, role.name());
+        kafkaChangedRoleProducer.sendToChangedRoleTopic(eventChangedRole);
         return userMapper.toResponse(savedUser);
     }
 }

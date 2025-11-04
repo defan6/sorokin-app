@@ -1,16 +1,15 @@
 package my.ddos.service.booking;
 
-import my.ddos.model.dto.booking.BookingRequest;
-import my.ddos.model.dto.booking.BookingResponse;
-import my.ddos.model.dto.booking.RegisterBookingResponse;
-import my.ddos.model.dto.booking.UserBookingResponse;
+import my.ddos.model.dto.booking.*;
 
 import java.util.List;
 
 public interface BookingService {
-    UserBookingResponse getMyBookings();
+    UserBookingResponse getMyBookings(String username);
 
     List<UserBookingResponse> getAllBookings();
 
-    RegisterBookingResponse createBooking(BookingRequest registerBookingRequest);
+    RegisterBookingResponse createBooking(BookingRequest registerBookingRequest, String username);
+
+    void cancelBooking(String username, CancelBookingRequest cancelBookingRequest);
 }

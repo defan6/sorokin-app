@@ -1,9 +1,11 @@
 package my.ddos.repository;
 
+import jakarta.validation.constraints.NotBlank;
 import my.ddos.model.entity.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
+    boolean existsByTitle(@NotBlank String title);
 }
