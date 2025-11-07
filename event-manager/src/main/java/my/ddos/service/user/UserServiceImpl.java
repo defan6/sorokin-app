@@ -68,6 +68,7 @@ public class UserServiceImpl implements UserService {
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
         Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException("Role " + role
                 + " not found"));
+        user.getUserRoles().clear();
         user.getUserRoles().add(userRole);
         User savedUser = userRepository.save(user);
         EventChangedRole eventChangedRole = eventChangedRoleMapper
