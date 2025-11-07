@@ -13,6 +13,10 @@ import CreateEventPage from "./pages/CreateEventPage";
 import CreateVenuePage from "./pages/CreateVenuePage";
 import AdminRoute from "./components/AdminRoute";
 import VenuesPage from "./pages/VenuesPage";
+import EditVenuePage from "./pages/EditVenuePage";
+import EditEventPage from "./pages/EditEventPage";
+import MyBookingsPage from "./pages/MyBookingsPage";
+import UserManagementPage from "./pages/UserManagementPage";
 
 interface User {
     accessToken: string;
@@ -57,14 +61,15 @@ const MainApp: React.FC = () => {
                                     <Nav.Link as={Link} to="/events/create">Create Event</Nav.Link>
                                     <Nav.Link as={Link} to="/venues/create">Create Venue</Nav.Link>
                                     <Nav.Link as={Link} to="/venues">Venues</Nav.Link>
+                                    <Nav.Link as={Link} to="/admin/users">User Management</Nav.Link>
                                 </>
                             )}
                         </Nav>
                         <Nav>
                             {currentUser ? (
                                 <>
-                                    {/* Здесь можно будет отображать имя пользователя */}
                                     <Nav.Link as={Link} to="/profile">{currentUser.username}</Nav.Link>
+                                    <Nav.Link as={Link} to="/my-bookings">My Bookings</Nav.Link>
                                     <Nav.Link onClick={logOut}>Logout</Nav.Link>
                                 </>
                             ) : (
@@ -86,10 +91,14 @@ const MainApp: React.FC = () => {
                     <Route path="/register" element={<RegisterPage/>}/>
                     <Route path="/events/:id" element={<EventDetailPage/>}/>
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/my-bookings" element={<MyBookingsPage />} />
                     <Route element={<AdminRoute />}>
                         <Route path="/venues" element={<VenuesPage/>}></Route>
                         <Route path="/events/create" element={<CreateEventPage/>} />
                         <Route path="/venues/create" element={<CreateVenuePage/>} />
+                        <Route path="/venues/edit/:id" element={<EditVenuePage />} />
+                        <Route path="/events/edit/:id" element={<EditEventPage />} />
+                        <Route path="/admin/users" element={<UserManagementPage />} />
                     </Route>
                 </Routes>
             </Container>

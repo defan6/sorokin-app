@@ -18,7 +18,7 @@ const EventDetailPage: React.FC = () => {
                 return;
             }
             try {
-                const response = await EventService.getEventById(id);
+                const response = await EventService.getEventById(Number(id));
                 setEvent(response.data);
             } catch (err: any) {
                 console.error('Failed to fetch event details:', err);
@@ -72,7 +72,7 @@ const EventDetailPage: React.FC = () => {
         <Container className="mt-4">
             <Card>
                 <Card.Body>
-                    <Card.Title as="h2">{event.name}</Card.Title>
+                    <Card.Title as="h2">{event.title}</Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">Event ID: {event.id}</Card.Subtitle>
                     <Card.Text>
                         <strong>Description:</strong> {event.description}

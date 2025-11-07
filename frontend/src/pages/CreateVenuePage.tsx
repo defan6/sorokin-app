@@ -1,11 +1,11 @@
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Row, Col, Card } from 'react-bootstrap';
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import VenueService from "../services/VenueService";
 
 const CreateVenuePage: React.FC = () => {
     const [name, setName] = useState('');
-    const [location, setLocation] = useState('');
+    const [address, setAddress] = useState('');
     const [capacity, setCapacity] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -16,15 +16,15 @@ const CreateVenuePage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        if (!name || !location) {
-            setError('Name and location are required');
+        if (!name || !address) {
+            setError('Name and address are required');
             setLoading(false);
             return;
         }
 
         try {
-            await VenueService.createVenue({name, address: location, capacity: Number(capacity)});
-            navigate('/');
+            await VenueService.createVenue({name, address, capacity: Number(capacity)});
+            navigate('/venues');
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || "Failed to create venue. Please try again";
             setError(errorMessage);
@@ -35,37 +35,45 @@ const CreateVenuePage: React.FC = () => {
     };
     return (
         <Container>
-            <h2>Create New Venue</h2>
-            <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="formVenueName">
-                    <Form.Label>Venue Name</Form.Label>
-                    <Form.Control type="text" placeholder="Enter venue name" value={name}
-                                  onChange={(e) => setName(e.target.value)} required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formVenueLocation">
-                    <Form.Label>Location</Form.Label>
-                    <Form.Control type="text"
-                                  placeholder="Enter address"
-                                  value={location}
-                                  onChange={(e) => setLocation(e.target.value)}
-                                  required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formVenueCapacity">
-                    <Form.Label>Capacity</Form.Label>
-                    <Form.Control type="number" placeholder="Enter capacity" value={capacity}
-                                onChange={(e) => setCapacity(e.target.value)} required
-                    />
+            <Row className="justify-content-md-center">
+                <Col md={8} lg={6}>
+                    <Card className="mt-4">
+                        <Card.Body>
+                            <h2 className="text-center mb-4">Create New Venue</h2>
+                            <Form onSubmit={handleSubmit}>
+                                <Form.Group className="mb-3" controlId="formVenueName">
+                                    <Form.Label>Venue Name</Form.Label>
+                                    <Form.Control type="text" placeholder="Enter venue name" value={name}
+                                                  onChange={(e) => setName(e.target.value)} required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formVenueAddress">
+                                    <Form.Label>Address</Form.Label>
+                                    <Form.Control type="text"
+                                                  placeholder="Enter address"
+                                                  value={address}
+                                                  onChange={(e) => setAddress(e.target.value)}
+                                                  required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formVenueCapacity">
+                                    <Form.Label>Capacity</Form.Label>
+                                    <Form.Control type="number" placeholder="Enter capacity" value={capacity}
+                                                onChange={(e) => setCapacity(e.target.value)} required
+                                    />
 
-                </Form.Group>
+                                </Form.Group>
 
-                {error && <Alert variant="danger">{error}</Alert>}
+                                {error && <Alert variant="danger">{error}</Alert>}
 
-                <Button variant="primary" type="submit" disabled={loading}>
-                    {loading ? 'Creating...' : 'Create Venue'}
-                </Button>
-            </Form>
+                                <Button variant="primary" type="submit" disabled={loading} className="w-100">
+                                    {loading ? 'Creating...' : 'Create Venue'}
+                                </Button>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
         </Container>
     );
 };

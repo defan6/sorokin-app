@@ -1,6 +1,6 @@
 import AuthService from "../services/AuthService";
-import React, {useState, useEffect} from 'react';
-import {Container, Card, Button, Alert, Spinner} from 'react-bootstrap';
+import React, {useState, useEffect, useMemo} from 'react';
+import {Container, Card, Button, Alert, Spinner, Row, Col} from 'react-bootstrap';
 import EventService, {Event} from '../services/EventService';
 import {Link} from "react-router-dom";
 
@@ -8,7 +8,7 @@ const EventsPage: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const currentUser = AuthService.getCurrentUser();
+    const currentUser = useMemo(() => AuthService.getCurrentUser(), []);
 
     useEffect(() => {
         if (currentUser) {
@@ -29,6 +29,20 @@ const EventsPage: React.FC = () => {
             setLoading(false);
         }
     }, [currentUser]);
+    const isAdmin = useMemo(() => currentUser?.roles?.includes('ROLE_ADMIN'), [currentUser]);
+
+    const handleDelete = async (id: number) => {
+        if (window.confirm('Are you sure you want to delete this event?')) {
+            try {
+                await EventService.deleteEvent(id);
+                setEvents(events.filter(event => event.id !== id));
+            } catch (err) {
+                console.error('Failed to delete event:', err);
+                setError('Failed to delete event. Please try again.');
+            }
+        }
+    };
+
     if (!currentUser) {
         return (
             <Container className="mt-4">
@@ -75,24 +89,39 @@ const EventsPage: React.FC = () => {
 
     return (
         <Container className="mt-4">
-            <h2>Available Events</h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2>Available Events</h2>
+                {isAdmin && (
+                    <Link to="/events/create" className="btn btn-primary">Create Event</Link>
+                )}
+            </div>
             {events.length === 0 ? (
                 <Alert variant="info">No events available at the moment.</Alert>
             ) : (
-                <div className="d-flex flex-wrap justify-content-start">
+                <Row xs={1} md={2} lg={3} className="g-4">
                     {events.map((event) => (
-                        <Card key={event.id} style={{width: '18rem', margin: '10px'}}>
-                            <Card.Body>
-                                <Card.Title>{event.name}</Card.Title>
-                                <Card.Text>{event.description}</Card.Text>
-                                {/* Добавьте другие детали события здесь */}
-                                <Link to={`/events/${event.id}`}>
-                                    <Button variant="primary">View Details</Button>
-                                </Link>
-                            </Card.Body>
-                        </Card>
+                        <Col key={event.id}>
+                            <Card className="event-card h-100">
+                                <Card.Body className="d-flex flex-column">
+                                    <Card.Title>{event.title}</Card.Title>
+                                    <Card.Text className="text-muted">
+                                        {new Date(event.eventDate).toLocaleDateString()}
+                                    </Card.Text>
+                                    <Card.Text>{event.description}</Card.Text>
+                                    <div className="mt-auto">
+                                        <Link to={`/events/${event.id}`} className="btn btn-primary btn-sm me-2">View Details</Link>
+                                        {isAdmin && (
+                                            <>
+                                                <Link to={`/events/edit/${event.id}`} className="btn btn-outline-secondary btn-sm me-2">Edit</Link>
+                                                <Button variant="outline-danger" size="sm" onClick={() => handleDelete(event.id)}>Delete</Button>
+                                            </>
+                                        )}
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
                     ))}
-                </div>
+                </Row>
             )}
         </Container>
     );
