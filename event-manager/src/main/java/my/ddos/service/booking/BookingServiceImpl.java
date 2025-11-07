@@ -50,17 +50,17 @@ public class BookingServiceImpl implements BookingService{
     @Override
     public UserBookingResponse getMyBookings(String username) {
         List<Booking> bookings = bookingRepository.findAllByUserUsername(username);
-        List<BookingResponse> bookingResponses = bookings.stream().map(bookingMapper::toResponse).toList();
+        List<MyBookingResponse> bookingResponses = bookings.stream().map(bookingMapper::toMyBookingResponse).toList();
         return bookingMapper.toUserBookingResponse(username, bookingResponses);
     }
 
     @Override
     public List<UserBookingResponse> getAllBookings() {
         List<Booking> bookings = bookingRepository.findAll();
-        Map<String, List<BookingResponse>> grouped = bookings.stream()
+        Map<String, List<MyBookingResponse>> grouped = bookings.stream()
                 .collect(Collectors.groupingBy(
                         booking -> booking.getUser().getUsername(),
-                        Collectors.mapping(bookingMapper::toResponse, Collectors.toList())
+                        Collectors.mapping(bookingMapper::toMyBookingResponse, Collectors.toList())
                 ));
         return grouped.entrySet().stream()
                 .map(entry -> new UserBookingResponse(entry.getKey(), entry.getValue()))

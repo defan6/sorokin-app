@@ -18,13 +18,20 @@ services:
     image: confluentinc/cp-kafka:6.2.0
     container_name: kafka
     ports:
-      - "9092:9092"
+      - "9093:9093"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093 # (-)
+      # внутренние клиенты также используют 9092 для подключения к kafka, 9093 для внешних соединений
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093 #(-)
+      # слушаем на порту 9092 для внутренних docker соединений, на порту 9093 для внешних соединений
+
+      #порты у (-) должны совпадать если ports: x:x - одинаковые значения
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      # KAFKA_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094
+      # если было бы так то тогда проброс портов должен был быть ports 9093:9094
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -54,26 +61,38 @@ services:
   gateway:
     hostname: gateway
     container_name: gateway
-    build: ./gateway
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      - JWT_SECRET=N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
 
   auth:
     hostname: auth
     container_name: auth
-    build: ./auth
+    build:
+      context: .
+      dockerfile: auth/Dockerfile
     ports:
       - "8081:8080"
+    environment:
+    - JWT_SECRET=N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
   event-manager:
     hostname: event-manager
     container_name: event-manager
-    build: ./event-manager
+    build:
+      context: .
+      dockerfile: event-manager/Dockerfile
     ports:
       - "8082:8080"
 
   event-notificator:
     hostname: event-notificator
     container_name: event-notificator
-    build: ./event-notificator
+    build:
+      context: .
+      dockerfile: event-notificator/Dockerfile
     ports:
       - "8083:8080"

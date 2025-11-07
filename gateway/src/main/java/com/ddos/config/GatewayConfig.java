@@ -25,7 +25,7 @@ public class GatewayConfig {
                             return chain.filter(exchange);
                         }))
                         .uri("http://event-manager:8080"))
-                .route("event-notificatior", r -> r
+                .route("event-notificator", r -> r
                         .path("/api/notificator/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to event-notification: " + exchange.getRequest().getURI());
