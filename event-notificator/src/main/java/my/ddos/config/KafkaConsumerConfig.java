@@ -1,5 +1,7 @@
 package my.ddos.config;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import my.ddos.model.dto.EventBooking;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -9,6 +11,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,3 +40,4 @@ public class KafkaConsumerConfig {
         return factory;
     }
 }
+

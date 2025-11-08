@@ -62,8 +62,8 @@ services:
     hostname: gateway
     container_name: gateway
     build:
-      context: .
-      dockerfile: gateway/Dockerfile
+      context: ./gateway
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -73,8 +73,8 @@ services:
     hostname: auth
     container_name: auth
     build:
-      context: .
-      dockerfile: auth/Dockerfile
+      context: ./auth
+      dockerfile: Dockerfile
     ports:
       - "8081:8080"
     environment:
@@ -83,8 +83,8 @@ services:
     hostname: event-manager
     container_name: event-manager
     build:
-      context: .
-      dockerfile: event-manager/Dockerfile
+      context: ./event-manager
+      dockerfile: Dockerfile
     ports:
       - "8082:8080"
 
@@ -92,7 +92,15 @@ services:
     hostname: event-notificator
     container_name: event-notificator
     build:
-      context: .
-      dockerfile: event-notificator/Dockerfile
+      context: ./event-notificator
+      dockerfile: Dockerfile
     ports:
       - "8083:8080"
+  frontend-event-app:
+    hostname: frontend-event-app
+    container_name: frontend-event-app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
