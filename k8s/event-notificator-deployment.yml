@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-notificator-deployment
+  labels:
+    app: event-notificator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-notificator
+  template:
+    metadata:
+      labels:
+        app: event-notificator
+    spec:
+      containers:
+      - name: event-notificator
+        # Перед применением этого манифеста, убедитесь, что вы собрали
+        # и загрузили образ в ваш кластер или реестр.
+        # Например, для minikube: eval $(minikube docker-env) && docker build -t event-notificator:latest ./event-notificator
+        image: ddosl/sorokin-app-event-notificator:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_PASSWORD

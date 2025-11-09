@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        # Перед применением этого манифеста, убедитесь, что вы собрали
+        # и загрузили образ в ваш кластер или реестр.
+        # Например, для minikube: eval $(minikube docker-env) && docker build -t frontend-event-app:latest ./frontend
+        image: ddosl/sorokin-app-frontend-event-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: REACT_APP_API_URL
+          # Это значение должно указывать на ваш Ingress.
+          # Например, 'http://my-app.com/api'.
+          # Для локального тестирования с Ingress, это может быть что-то вроде 'http://<minikube-ip>/api'
+          value: "/api"
