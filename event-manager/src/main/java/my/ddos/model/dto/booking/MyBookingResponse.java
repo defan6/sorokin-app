@@ -1,14 +1,18 @@
 package my.ddos.model.dto.booking;
 
-import my.ddos.enums.BookingStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-public record MyBookingResponse(
-        Long id,
-        String eventName,
-        LocalDateTime eventDate,
-        String venueName,
-        BookingStatus status
-) {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class MyBookingResponse {
+    private Long id;
+    private String eventName;
+    private LocalDateTime eventDate;
+    private String venueName;
+    private String status;
 }

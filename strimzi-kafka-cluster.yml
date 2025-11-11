@@ -1,0 +1,52 @@
+# 1. Описание кластера Kafka для Strimzi (в режиме KRaft, без Zookeeper)
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: kafka
+spec:
+  kafka:
+    # Версия 4.0.0, которую мы уже определили как поддерживаемую
+    version: 4.0.0
+    listeners:
+      # Внутренний листенер на порту 9092
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+
+---
+
+# 2. Описание "пула узлов" (новый способ определения нод Kafka)
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: kafka-pool
+  labels:
+    # Эта метка связывает пул с нашим кластером Kafka под названием "kafka"
+    strimzi.io/cluster: kafka
+spec:
+  replicas: 1
+  roles:
+    # В режиме KRaft узел может быть и брокером, и контроллером одновременно
+    - broker
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+        deleteClaim: false
+
+---
+
+# 3. Сервис-алиас (все еще нужен, чтобы приложения нашли Kafka)
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  type: ExternalName
+  externalName: kafka-kafka-bootstrap.default.svc.cluster.local
+  ports:
+  - port: 9092

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        # Перед применением этого манифеста, убедитесь, что вы собрали
+        # и загрузили образ в ваш кластер или реестр.
+        # Например, для minikube: eval $(minikube docker-env) && docker build -t gateway:latest ./gateway
+        image: ddosl/sorokin-app-gateway:latest
+        imagePullPolicy: IfNotPresent # Используйте 'Always' если вы используете внешний реестр
+        ports:
+        - containerPort: 8080
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: JWT_SECRET
