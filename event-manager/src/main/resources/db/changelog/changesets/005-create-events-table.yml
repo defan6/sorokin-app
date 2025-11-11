@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: fedorVX
+      preConditions:
+        - not:
+            - tableExists:
+                tableName: events
+        - tableExists:
+            tableName: venues
+        - tableExists:
+            tableName: users
+      changes:
+        - createTable:
+            tableName: events
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: event_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: venue_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: organizer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: events
+            baseColumnNames: venue_id
+            constraintName: fk_event_venue
+            referencedTableName: venues
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: events
+            baseColumnNames: organizer_id
+            constraintName: fk_event_organizer
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: events
+            constraintName: fk_event_organizer
+            onFail: WARN
+        - dropForeignKeyConstraint:
+            baseTableName: events
+            constraintName: fk_event_venue
+            onFail: WARN
+        - dropTable:
+            tableName: events
+            onFail: WARN

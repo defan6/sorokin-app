@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: defan6
+      preConditions:
+        - not:
+            - tableExists:
+                tableName: notifications
+      changes:
+        - createTable:
+            tableName: notifications
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: message
+                  type: VARCHAR(255)
+              - column:
+                  name: booking_status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: read_status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: registered_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - createIndex:
+            tableName: notifications
+            indexName: idx_notifications_username
+            columns:
+              - column:
+                  name: username
+        - createIndex:
+            tableName: notifications
+            indexName: idx_notifications_event_id
+            columns:
+              - column:
+                  name: event_id
+        - createIndex:
+            tableName: notifications
+            indexName: idx_notifications_read_status
+            columns:
+              - column:
+                  name: read_status
+      rollback:
+        - dropTable:
+            tableName: notifications
