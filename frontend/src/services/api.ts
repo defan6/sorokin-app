@@ -2,7 +2,7 @@ import axios from 'axios';
 import AuthService from './AuthService';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:7080',
 });
 
 api.interceptors.request.use(
@@ -35,8 +35,8 @@ api.interceptors.response.use(
             window.location.href = '/login';
 
 
-            return Promise.reject(error);
         }
+        return Promise.reject(error);
     }
 )
 

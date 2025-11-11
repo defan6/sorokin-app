@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: fedorVX
+      preConditions:
+        - not:
+            - tableExists:
+                tableName: users_roles
+        - tableExists:
+            tableName: users
+        - tableExists:
+            tableName: roles
+      changes:
+        - createTable:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: users_roles
+            columnNames: user_id, role_id
+            constraintName: pk_users_roles
+        - addForeignKeyConstraint:
+            baseTableName: users_roles
+            baseColumnNames: user_id
+            constraintName: fk_user_roles_user
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: users_roles
+            baseColumnNames: role_id
+            constraintName: fk_user_roles_role
+            referencedTableName: roles
+            referencedColumnNames: id
+            onDelete: CASCADE
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: users_roles
+            constraintName: fk_user_roles_role
+            onFail: WARN
+        - dropForeignKeyConstraint:
+            baseTableName: users_roles
+            constraintName: fk_user_roles_user
+            onFail: WARN
+        - dropTable:
+            tableName: users_roles
+            onFail: WARN

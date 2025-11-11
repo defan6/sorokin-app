@@ -1,10 +1,6 @@
 package my.ddos.mapper;
 
-import my.ddos.model.dto.booking.BookingRequest;
-import my.ddos.model.dto.booking.BookingResponse;
-import my.ddos.model.dto.booking.MyBookingResponse;
-import my.ddos.model.dto.booking.RegisterBookingResponse;
-import my.ddos.model.dto.booking.UserBookingResponse;
+import my.ddos.model.dto.booking.*;
 import my.ddos.model.entity.Booking;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

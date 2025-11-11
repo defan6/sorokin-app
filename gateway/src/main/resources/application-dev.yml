@@ -1,0 +1,14 @@
+event:
+  manager:
+    service:
+      url: http://localhost:7082
+  notificator:
+      service:
+        url: http://localhost:7083
+auth:
+  service:
+    url: http://localhost:7081
+jwt:
+  secret: N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
+server:
+  port: 7080

@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/dev_event_manager_db
+    username: postgres
+    password: root
+  kafka:
+    bootstrap-servers: localhost:9093
+server:
+  port: 7082
