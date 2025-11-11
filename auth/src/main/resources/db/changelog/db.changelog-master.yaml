@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/changesets/001-create-auths-table.yml
   - include:
       file: db/changelog/changesets/002-create-auth-roles-table.yml
+  - include:
+      file: db/changelog/changesets/003-insert-auths-data.yml
+  - include:
+      file: db/changelog/changesets/004-insert-auth-roles-data.yml
