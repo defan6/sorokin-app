@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: fedorVX
+      preConditions:
+        - tableExists:
+            tableName: roles
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: role
+                  value: "ROLE_USER"
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: role
+                  value: "ROLE_ADMIN"
+      rollback:
+        - delete:
+            tableName: roles
+            where: "role IN ('ROLE_USER', 'ROLE_ADMIN')"

@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: fedorVX
+      preConditions:
+        - not:
+            - tableExists:
+                tableName: bookings
+        - tableExists:
+            tableName: users
+        - tableExists:
+            tableName: events
+      changes:
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: booking_status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: registered_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: bookings
+            baseColumnNames: user_id
+            constraintName: fk_booking_user
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: bookings
+            baseColumnNames: event_id
+            constraintName: fk_booking_event
+            referencedTableName: events
+            referencedColumnNames: id
+            onDelete: CASCADE
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: bookings
+            constraintName: fk_booking_event
+            onFail: WARN
+        - dropForeignKeyConstraint:
+            baseTableName: bookings
+            constraintName: fk_booking_user
+            onFail: WARN
+        - dropTable:
+            tableName: bookings
+            onFail: WARN

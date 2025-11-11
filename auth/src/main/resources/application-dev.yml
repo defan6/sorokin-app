@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/dev_auth_db
+    username: postgres
+    password: root
+  kafka:
+    bootstrap-servers: localhost:9093
+server:
+  port: 7081
+
+
+jwt:
+  secret: N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
