@@ -14,6 +14,8 @@ import CreateVenuePage from "./pages/CreateVenuePage";
 import AdminRoute from "./components/AdminRoute";
 import VenuesPage from "./pages/VenuesPage";
 import EditVenuePage from "./pages/EditVenuePage";
+import UserManagementPage from "./pages/UserManagementPage";
+import MyBookingsPage from "./pages/MyBookingsPage";
 
 
 interface User {
@@ -89,6 +91,8 @@ const MainApp: React.FC = () => {
                     <Route path="/register" element={<RegisterPage/>}/>
                     <Route path="/events/:id" element={<EventDetailPage/>}/>
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/admin/users" element={<UserManagementPage />} />
+                    <Route path="/my-bookings" element={<MyBookingsPage />} />
                     <Route element={<AdminRoute />}>
                         <Route path="/venues" element={<VenuesPage/>}></Route>
                         <Route path="/events/create" element={<CreateEventPage/>} />
