@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse changeRole(String changedBy, ChangeRoleRequest changeRoleRequest) {
         User user = userRepository.findById(changeRoleRequest.getId())
-                .orElseThrow(()-> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
         Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException("Role " + role
                 + " not found"));
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
         user.getUserRoles().add(userRole);
         User savedUser = userRepository.save(user);
         EventChangedRole eventChangedRole = eventChangedRoleMapper
-                .toEventChangedRole(user.getUsername(),changedBy, role.name());
+                .toEventChangedRole(user.getUsername(), changedBy, role.name());
         kafkaChangedRoleProducer.sendToChangedRoleTopic(eventChangedRole);
         return userMapper.toResponse(savedUser);
     }
