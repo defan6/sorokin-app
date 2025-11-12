@@ -38,4 +38,5 @@ class VenueService {
 }
 
 
-export default new VenueService();
+const venueService = new VenueService();
+export default venueService;
