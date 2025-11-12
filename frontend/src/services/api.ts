@@ -28,7 +28,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
 
-        if(error.response.status == 401 && !originalRequest._retry) {
+        if(error.response.status === 401 && !originalRequest._retry) {
             AuthService.logout();
 
 
