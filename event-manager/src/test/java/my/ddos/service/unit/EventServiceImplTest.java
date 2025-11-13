@@ -1,20 +1,26 @@
-package my.ddos.service.event;
+package my.ddos.service.unit;
 
 import jakarta.persistence.EntityManager;
+import my.ddos.controller.kafka.KafkaChangeEventProducer;
 import my.ddos.exception.EventNotFoundException;
 import my.ddos.exception.UserNotFoundException;
 import my.ddos.exception.VenueNotFoundException;
+import my.ddos.mapper.EventChangedEventMapper;
 import my.ddos.mapper.EventMapper;
 import my.ddos.model.dto.event.EventRequest;
 import my.ddos.model.dto.event.EventResponse;
+import my.ddos.model.dto.event.PatchEventRequest;
+import my.ddos.model.dto.kafka.EventChangedEvent;
 import my.ddos.model.dto.user.UserResponse;
 import my.ddos.model.dto.venue.VenueResponse;
 import my.ddos.model.entity.Event;
 import my.ddos.model.entity.User;
 import my.ddos.model.entity.Venue;
 import my.ddos.repository.EventRepository;
+import my.ddos.service.event.EventServiceImpl;
 import my.ddos.service.user.UserService;
 import my.ddos.service.venue.VenueService;
+import my.ddos.validator.EventValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,10 +49,12 @@ class EventServiceImplTest {
     @Mock
     private EntityManager entityManager;
 
-    // Unused mocks for now, can be added when testing other methods
-    // @Mock private KafkaChangeEventProducer kafkaChangeEventProducer;
-    // @Mock private EventValidator eventValidator;
-    // @Mock private EventChangedEventMapper eventChangedEventMapper;
+    @Mock
+    private KafkaChangeEventProducer kafkaChangeEventProducer;
+    @Mock
+    private EventValidator eventValidator;
+    @Mock
+    private EventChangedEventMapper eventChangedEventMapper;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -218,5 +226,103 @@ class EventServiceImplTest {
         verify(userService, times(1)).getInfoAboutCurrentUser(username);
         verify(venueService, times(1)).getVenue(venueId);
         verify(eventRepository, never()).save(any(Event.class));
+    }
+
+    @Test
+    void patchEvent_shouldUpdateEvent_whenEventExists() {
+        // Given
+        Long eventId = 1L;
+        String changedBy = "user";
+        LocalDateTime newDate = LocalDateTime.now().plusDays(1);
+        PatchEventRequest patchRequest = new PatchEventRequest(
+                Optional.of("New Title"),
+                Optional.of("New Description"),
+                Optional.of(newDate)
+        );
+
+        Event existingEvent = new Event();
+        existingEvent.setId(eventId);
+        existingEvent.setTitle("Old Title");
+
+        Event savedEvent = new Event();
+        savedEvent.setId(eventId);
+        savedEvent.setTitle("New Title");
+        savedEvent.setDescription("New Description");
+        savedEvent.setEventDate(newDate);
+
+        EventResponse expectedResponse = new EventResponse(
+                eventId, "New Title", "New Description", newDate, 100L, 1L
+        );
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(existingEvent));
+        when(eventRepository.save(any(Event.class))).thenReturn(savedEvent);
+        when(eventMapper.toResponse(savedEvent)).thenReturn(expectedResponse);
+        when(eventChangedEventMapper.toEventChanged(savedEvent, changedBy)).thenReturn(new EventChangedEvent(null, null, null, null, null ,null));
+
+        // When
+        EventResponse actualResponse = eventService.patchEvent(eventId, patchRequest, changedBy);
+
+        // Then
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.id()).isEqualTo(eventId);
+        assertThat(actualResponse.title()).isEqualTo("New Title");
+        assertThat(actualResponse.description()).isEqualTo("New Description");
+        assertThat(actualResponse.eventDate()).isEqualTo(newDate);
+
+        verify(eventRepository, times(1)).findById(eventId);
+        verify(eventRepository, times(1)).save(existingEvent);
+        verify(kafkaChangeEventProducer, times(1)).sendToChangeEventTopic(any(EventChangedEvent.class));
+        verify(eventMapper, times(1)).toResponse(savedEvent);
+    }
+
+    @Test
+    void patchEvent_shouldThrowEventNotFoundException_whenEventDoesNotExist() {
+        // Given
+        Long eventId = 1L;
+        String changedBy = "user";
+        PatchEventRequest patchRequest = new PatchEventRequest(
+                Optional.of("New Title"),
+                Optional.of("New Description"),
+                Optional.of(LocalDateTime.now())
+        );
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(EventNotFoundException.class, () -> eventService.patchEvent(eventId, patchRequest, changedBy));
+
+        verify(eventRepository, times(1)).findById(eventId);
+        verify(eventRepository, never()).save(any(Event.class));
+        verify(kafkaChangeEventProducer, never()).sendToChangeEventTopic(any(EventChangedEvent.class));
+    }
+
+    @Test
+    void deleteEvent_shouldDeleteEvent_whenEventExists() {
+        // Given
+        Long eventId = 1L;
+        Event event = new Event();
+        event.setId(eventId);
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+
+        // When
+        eventService.deleteEvent(eventId);
+
+        // Then
+        verify(eventRepository, times(1)).findById(eventId);
+        verify(eventRepository, times(1)).delete(event);
+    }
+
+    @Test
+    void deleteEvent_shouldThrowEventNotFoundException_whenEventDoesNotExist() {
+        // Given
+        Long eventId = 1L;
+        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(EventNotFoundException.class, () -> eventService.deleteEvent(eventId));
+
+        verify(eventRepository, times(1)).findById(eventId);
+        verify(eventRepository, never()).delete(any(Event.class));
     }
 }

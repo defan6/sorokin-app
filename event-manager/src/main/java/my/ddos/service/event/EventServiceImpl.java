@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import my.ddos.controller.kafka.KafkaChangeEventProducer;
 import my.ddos.exception.EventNotFoundException;
-import my.ddos.exception.VenueNotFoundException;
 import my.ddos.mapper.EventChangedEventMapper;
 import my.ddos.mapper.EventMapper;
 import my.ddos.model.dto.event.EventRequest;
@@ -17,8 +16,6 @@ import my.ddos.model.entity.Event;
 import my.ddos.model.entity.User;
 import my.ddos.model.entity.Venue;
 import my.ddos.repository.EventRepository;
-import my.ddos.repository.UserRepository;
-import my.ddos.repository.VenueRepository;
 import my.ddos.validator.EventValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +75,7 @@ public class EventServiceImpl implements EventService {
         Event savedEvent = eventRepository.save(event);
         EventChangedEvent eventChangedEvent = eventChangedEventMapper.toEventChanged(savedEvent, changedBy);
         kafkaChangeEventProducer.sendToChangeEventTopic(eventChangedEvent);
-        return eventMapper.toResponse(eventRepository.save(event));
+        return eventMapper.toResponse(savedEvent);
     }
 
     @Override

@@ -1,11 +1,9 @@
 package my.ddos.exception.handler;
 
 
-import my.ddos.exception.BookingValidateException;
-import my.ddos.exception.EventValidateException;
-import my.ddos.exception.UserAlreadyRegisteredForEventException;
-import my.ddos.exception.VenueValidateException;
+import my.ddos.exception.*;
 import my.ddos.model.dto.ExceptionBody;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,6 +33,12 @@ public class GlobalExceptionHandler {
             UserAlreadyRegisteredForEventException e
     ){
         return ResponseEntity.badRequest().body(new ExceptionBody("Invalid event", e.getErrors()));
+    }
+
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleEventNotFoundException(EventNotFoundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
 
