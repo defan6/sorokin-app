@@ -11,4 +11,6 @@ public interface UserMapper {
     UserResponse toResponse(User entity);
 
     User toEntity(EventRegisterUser eventRegisterUser);
+
+    User toEntity(UserResponse userResponse);
 }

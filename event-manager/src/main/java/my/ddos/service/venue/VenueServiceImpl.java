@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class VenueServiceImpl implements VenueService {
@@ -22,6 +23,7 @@ public class VenueServiceImpl implements VenueService {
     private final VenueMapper venueMapper;
 
     private final VenueValidator venueValidator;
+
     @Override
     public List<VenueResponse> getAllVenues() {
         return venueRepository.findAll().stream().map(venueMapper::toResponse).toList();
@@ -34,7 +36,6 @@ public class VenueServiceImpl implements VenueService {
         Venue venue = venueMapper.toEntity(venueRequest);
         return venueMapper.toResponse(venueRepository.save(venue));
     }
-
 
 
     @Override
