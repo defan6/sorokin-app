@@ -7,37 +7,12 @@ on:
     branches: [develop, master]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Build backend with Maven
-        run: mvn clean install -DskipTests # Skip tests in build job
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm install
-          npm run build
-
   test:
     runs-on: ubuntu-latest
-    needs: build # This job depends on the 'build' job
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -45,4 +20,75 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run backend tests with Maven
-        run: mvn test # Run tests
+        run: mvn test
+  build-and-push-docker:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: auth
+            image: ddosl/sorokin-app-auth
+            context: ./auth
+            type: backend
+          - service: gateway
+            image: ddosl/sorokin-app-gateway
+            context: ./gateway
+            type: backend
+          - service: event-manager
+            image: ddosl/sorokin-app-event-manager
+            context: ./event-manager
+            type: backend
+          - service: event-notificator
+            image: ddosl/sorokin-app-event-notificator
+            context: ./event-notificator
+            type: backend
+          - service: frontend
+            image: ddosl/sorokin-app-frontend-event-app
+            context: ./frontend
+            type: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up JDK 21 for backend build
+        if: matrix.type == 'backend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Set up Node.js for frontend build
+        if: matrix.type == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build backend artifact with Maven
+        if: matrix.type == 'backend'
+        run: mvn -f ${{ matrix.context }}/pom.xml clean package -DskipTests
+      - name: Build frontend static files
+        if: matrix.type == 'frontend'
+        run: |
+          cd ${{ matrix.context }}
+          npm install
+          npm run build
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ matrix.image }}:latest
