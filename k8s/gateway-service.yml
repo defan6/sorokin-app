@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: gateway-service
 spec:
+  type: ClusterIP
   selector:
     app: gateway
   ports:

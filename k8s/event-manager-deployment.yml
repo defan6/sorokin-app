@@ -16,9 +16,6 @@ spec:
     spec:
       containers:
       - name: event-manager
-        # Перед применением этого манифеста, убедитесь, что вы собрали
-        # и загрузили образ в ваш кластер или реестр.
-        # Например, для minikube: eval $(minikube docker-env) && docker build -t event-manager:latest ./event-manager
         image: ddosl/sorokin-app-event-manager:latest
         imagePullPolicy: IfNotPresent
         ports:
