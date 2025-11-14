@@ -15,7 +15,7 @@ COPY gateway/src ./gateway/src/
 RUN mvn -pl gateway -am clean package -DskipTests
 
 # Стадия 2: Создание финального минималистичного образа
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-slim
 
 WORKDIR /app
 

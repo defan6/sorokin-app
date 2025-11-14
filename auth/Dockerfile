@@ -15,7 +15,7 @@ COPY auth/src ./auth/src/
 RUN mvn -pl auth -am clean package -DskipTests
 
 # Стадия 2: Создание финального минималистичного образа
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-slim
 
 WORKDIR /app
 

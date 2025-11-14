@@ -15,7 +15,7 @@ COPY event-notificator/src ./event-notificator/src/
 RUN mvn -pl event-notificator -am clean package -DskipTests
 
 # Стадия 2: Создание финального минималистичного образа
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-slim
 
 WORKDIR /app
 

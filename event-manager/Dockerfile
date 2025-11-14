@@ -15,7 +15,7 @@ COPY event-manager/src ./event-manager/src/
 RUN mvn -pl event-manager -am clean package -DskipTests
 
 # Стадия 2: Создание финального минималистичного образа
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-slim
 
 WORKDIR /app
 
