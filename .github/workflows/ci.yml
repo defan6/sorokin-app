@@ -1,14 +1,14 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [develop, master]
+    branches: [ develop, master ]
   pull_request:
-    branches: [develop, master]
+    branches: [ develop, master ]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,12 +19,15 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
+
       - name: Run backend tests with Maven
         run: mvn test
-  build-and-push-docker:
+
+  docker-build-dry-run:
+    name: Docker Build (Dry Run)
+    if: github.event_name == 'pull_request'
     needs: test
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
@@ -63,25 +66,115 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-            - name: Set up Node.js for frontend build
-              if: matrix.type == 'frontend'
-              uses: actions/setup-node@v4
-              with:
-                node-version: '18'
-                cache: 'npm'
-                cache-dependency-path: frontend/package-lock.json
+
+      - name: Set up JDK 21 for backend build
+        if: matrix.type == 'backend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
       
-            - name: Build frontend static files
-              if: matrix.type == 'frontend'
-              run: |
-                cd ${{ matrix.context }}
-                npm install
-                npm run build
-      
-            - name: Build and push Docker image
-              uses: docker/build-push-action@v6
-              with:
-                context: .
-                file: ${{ matrix.context }}/Dockerfile
-                push: true
-                tags: ${{ matrix.image }}:latest
+      - name: Build backend artifact with Maven
+        if: matrix.type == 'backend'
+        run: mvn -f ${{ matrix.context }}/pom.xml clean package -DskipTests
+
+      - name: Set up Node.js for frontend build
+        if: matrix.type == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend static files
+        if: matrix.type == 'frontend'
+        run: |
+          cd ${{ matrix.context }}
+          npm install
+          npm run build
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: false
+          tags: ${{ matrix.image }}:pr-${{ github.event.number }}
+
+  build-and-push-docker:
+    name: Build and Push Docker Images
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - service: auth
+            image: ddosl/sorokin-app-auth
+            context: ./auth
+            type: backend
+          - service: gateway
+            image: ddosl/sorokin-app-gateway
+            context: ./gateway
+            type: backend
+          - service: event-manager
+            image: ddosl/sorokin-app-event-manager
+            context: ./event-manager
+            type: backend
+          - service: event-notificator
+            image: ddosl/sorokin-app-event-notificator
+            context: ./event-notificator
+            type: backend
+          - service: frontend
+            image: ddosl/sorokin-app-frontend-event-app
+            context: ./frontend
+            type: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up JDK 21 for backend build
+        if: matrix.type == 'backend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build backend artifact with Maven
+        if: matrix.type == 'backend'
+        run: mvn -f ${{ matrix.context }}/pom.xml clean package -DskipTests
+
+      - name: Set up Node.js for frontend build
+        if: matrix.type == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend static files
+        if: matrix.type == 'frontend'
+        run: |
+          cd ${{ matrix.context }}
+          npm install
+          npm run build
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ matrix.image }}:latest
