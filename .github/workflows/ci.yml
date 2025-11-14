@@ -34,15 +34,15 @@ jobs:
             type: backend
           - service: gateway
             image: ddosl/sorokin-app-gateway
-            context: ./auth
+            context: ./gateway
             type: backend
           - service: event-manager
             image: ddosl/sorokin-app-event-manager
-            context: ./auth
+            context: ./event-manager
             type: backend
           - service: event-notificator
             image: ddosl/sorokin-app-event-notificator
-            context: ./auth
+            context: ./event-notificator
             type: backend
           - service: frontend
             image: ddosl/sorokin-app-frontend-event-app
