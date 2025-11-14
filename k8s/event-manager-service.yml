@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: event-manager-service
 spec:
+  type: ClusterIP
   selector:
     app: event-manager
   ports:

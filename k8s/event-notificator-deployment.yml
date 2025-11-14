@@ -16,9 +16,6 @@ spec:
     spec:
       containers:
       - name: event-notificator
-        # Перед применением этого манифеста, убедитесь, что вы собрали
-        # и загрузили образ в ваш кластер или реестр.
-        # Например, для minikube: eval $(minikube docker-env) && docker build -t event-notificator:latest ./event-notificator
         image: ddosl/sorokin-app-event-notificator:latest
         imagePullPolicy: IfNotPresent
         ports:

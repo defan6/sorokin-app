@@ -3,27 +3,24 @@ kind: Ingress
 metadata:
   name: main-ingress
   annotations:
-    # Убедитесь, что у вас в кластере установлен Ingress Controller, например, NGINX Ingress Controller.
-    # Эта аннотация указывает, что путь /api будет переписан в /
-    # при перенаправлении на gateway-service.
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-  # Замените 'your-host.com' на ваш домен или оставьте пустым для использования IP Ingress Controller.
-  # - host: your-host.com
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 3000
-      - path: /api(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: gateway-service
-            port:
-              number: 8080
+    - host: myapp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 3000
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 8080
