@@ -1,21 +1,26 @@
-# Stage 1: Build the entire multi-module project
-FROM maven:3.9.4-eclipse-temurin-21-alpine AS build
-WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+# Стадия 1: Сборка приложения с помощью Maven
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
-# Stage 2: Create the final image for the gateway service
-FROM eclipse-temurin:21-jdk-jammy
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl bash && rm -rf /var/lib/apt/lists/*
+# Копируем родительский pom.xml
+COPY pom.xml .
 
-RUN curl -sSL https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -o /wait-for-it.sh \
-    && chmod +x /wait-for-it.sh
+# Копируем pom.xml и исходный код сервиса gateway
+COPY gateway/pom.xml ./gateway/
+COPY gateway/src ./gateway/src/
 
-# Copy only the required JAR from the build stage
-COPY --from=build /app/gateway/target/*.jar app.jar
+# Собираем только модуль gateway (флаг -am соберет и все его зависимости)
+RUN mvn -pl gateway -am clean package -DskipTests
 
-EXPOSE 8080
+# Стадия 2: Создание финального минималистичного образа
+FROM openjdk:21-jdk-slim
 
-ENTRYPOINT ["/wait-for-it.sh", "kafka:9092", "--", "java", "-jar", "app.jar"]
+WORKDIR /app
+
+# Копируем собранный JAR-файл из стадии сборщика
+COPY --from=builder /app/gateway/target/*.jar app.jar
+
+# Указываем команду для запуска приложения
+ENTRYPOINT ["java","-jar","/app/app.jar"]
