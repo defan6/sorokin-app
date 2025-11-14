@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: event-notificator-service
 spec:
+  type: ClusterIP
   selector:
     app: event-notificator
   ports:
