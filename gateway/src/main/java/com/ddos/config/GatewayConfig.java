@@ -20,6 +20,9 @@ public class GatewayConfig {
     @Value("${event.notificator.service.url}")
     private String eventNotificatorServiceUrl;
 
+    @Value("${profile.service.url}")
+    private String profileServiceUrl;
+
 
 
 
@@ -47,6 +50,13 @@ public class GatewayConfig {
                             return chain.filter(exchange);
                         }))
                         .uri(eventNotificatorServiceUrl))
+                .route("profile-service", r -> r
+                        .path("/api/profiles/**")
+                        .filters(f -> f.filter((exchange, chain) -> {
+                            System.out.println("[Gateway] Routing to profile-service: " + exchange.getRequest().getURI());
+                            return chain.filter(exchange);
+                        }))
+                        .uri(profileServiceUrl))
                 .build();
     }
 }

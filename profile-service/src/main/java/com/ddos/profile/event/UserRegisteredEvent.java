@@ -1,8 +1,9 @@
-package com.ddos.auth.kafka.event;
+package com.ddos.profile.event;
+
 
 import jakarta.validation.constraints.NotNull;
 
-public record EventRegisterUser(
+public record UserRegisteredEvent(
         @NotNull Long userId,
         @NotNull String username,
         @NotNull String fullName,

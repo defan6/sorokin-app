@@ -13,8 +13,8 @@ public class JwtService {
 
     private final JwtUtil jwtUtil;
 
-    public String createJwtToken(String username, Set<String> roles){
-        return jwtUtil.generateToken(username, roles);
+    public String createJwtToken(Long userId, String username, Set<String> roles){
+        return jwtUtil.generateToken(userId, username, roles);
     }
 
 }

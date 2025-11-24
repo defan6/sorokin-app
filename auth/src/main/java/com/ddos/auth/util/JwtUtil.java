@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -31,6 +30,10 @@ public class JwtUtil {
         return resolver.apply(extractAllClaims(token));
     }
 
+    public Long extractUserId(String token){
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
+    }
+
     public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -46,8 +49,9 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.getExpiration());
     }
 
-    public String generateToken(String username, Set<String> roles) {
+    public String generateToken(Long userId, String username, Set<String> roles) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
         claims.put("roles", roles);
         return createToken(claims, username);
     }

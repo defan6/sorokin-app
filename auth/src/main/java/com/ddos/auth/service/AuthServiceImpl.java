@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,9 +55,10 @@ public class AuthServiceImpl implements AuthService {
         Auth auth = authMapper.toAuth(registerRequest);
         auth.getRoles().add("ROLE_USER");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_USER", auth);
+        Auth savedAuth = authRepository.save(auth);
+        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser(savedAuth.getId(), "ROLE_USER", savedAuth);
         kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
-        return authMapper.toRegisterResponse(authRepository.save(auth));
+        return authMapper.toRegisterResponse(savedAuth);
     }
 
     @Override
@@ -65,10 +68,11 @@ public class AuthServiceImpl implements AuthService {
         Auth auth = authMapper.toAuth(registerRequest);
         auth.getRoles().add("ROLE_ADMIN");
         auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser("ROLE_ADMIN", auth);
+        Auth savedAuth = authRepository.save(auth);
+        EventRegisterUser eventRegisterUser = authMapper.toEventRegisterUser(savedAuth.getId(), "ROLE_ADMIN", savedAuth);
         log.info("event-register-admin : {}", eventRegisterUser);
         kafkaRegisterProducer.sendMessageToRegisterTopic(eventRegisterUser);
-        return authMapper.toRegisterResponse(authRepository.save(auth));
+        return authMapper.toRegisterResponse(savedAuth);
     }
 
     @Override
@@ -79,12 +83,14 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         String username = authentication.getName();
+        Auth auth = authRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " not found"));
         Set<String> roles = authentication
                 .getAuthorities()
                 .stream()
-                .map(authority -> authority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
-        String jwt = jwtService.createJwtToken(username, roles);
+        String jwt = jwtService.createJwtToken(auth.getId(), username, roles);
         return new LoginResponse(username, roles, jwt);
     }
 

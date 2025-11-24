@@ -46,6 +46,7 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
 
         if (token != null && jwtUtil.validateToken(token)) {
+            Long userId = jwtUtil.extractUserId(token);
             String username = jwtUtil.extractUsername(token);
             List<String> roles = jwtUtil.extractRoles(token);
             List<SimpleGrantedAuthority> authorities = roles.stream()
@@ -57,7 +58,9 @@ public class JwtAuthenticationWebFilter implements WebFilter {
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                    .header("X-User-Id", String.valueOf(userId))
                     .header("X-Username", username)
+                    .header("X-User-Roles", String.join(",", roles))
                     .build();
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build())

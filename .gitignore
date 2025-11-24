@@ -1,0 +1,104 @@
+# Maven
+/target/
+pom.xml.tag
+pom.xml.next
+pom.xml.bak
+release.properties
+release-pom.xml
+# A .gitignore file placed in the root of the project to ignore files
+# and directories that should not be committed to the repository.
+
+# Specific to your project (based on your folder structure)
+# Log files
+*.log
+logs/
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDEs
+.idea/
+.vscode/
+db_data_fs/
+db_data_fs/global/*
+*.iml
+*.iws
+*.ipr
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Maven build directory
+target/
+
+# Node.js dependencies
+/frontend/node_modules/
+/frontend/build/
+/frontend/package-lock.json
+
+# Environment variables
+.env
+*.env
+
+# Kubernetes secrets (local, not for repo)
+k8s/secret.yml
+k8s/db-secret.yml
+
+# Compiled class files
+*.class
+
+# output of compilation
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# STS
+.sts4-workspace/
+
+# IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Mac
+.DS_Store
+.Lombook
+
+# Windows
+Thumbs.db
+ehthumbs.db
+*.bak
+*.obj
+*.user
+*.suo
+*.sln.docstates
+
+# Spring Boot devtools
+.spring-boot-devtools.properties
+
+# AOT and native
+/build/
+/bin/
+
+# Crash dumps
+hs_err_pid*.log
+
+# Specific to your project, if you have these in root
+*.ps1
+*.md
