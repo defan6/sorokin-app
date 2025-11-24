@@ -1,5 +1,8 @@
 package com.ddos.config;
 
+import com.ddos.properties.GatewayConfigurationProperties;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -7,23 +10,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class GatewayConfig {
 
-
-    @Value("${auth.service.url}")
-    private String authServiceUrl;
-
-
-    @Value("${event.manager.service.url}")
-    private String eventManagerServiceUrl;
-
-    @Value("${event.notificator.service.url}")
-    private String eventNotificatorServiceUrl;
-
-    @Value("${profile.service.url}")
-    private String profileServiceUrl;
-
-
+    private final GatewayConfigurationProperties properties;
 
 
     @Bean
@@ -35,28 +25,36 @@ public class GatewayConfig {
                             System.out.println("[Gateway] Routing to auth-service: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri(authServiceUrl))
+                        .uri(properties.getAuthServiceUrl()))
                 .route("event-manager", r -> r
                         .path("/api/manager/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to event-manager: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri(eventManagerServiceUrl))
+                        .uri(properties.getEventManagerServiceUrl()))
                 .route("event-notificator", r -> r
                         .path("/api/notificator/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to event-notification: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri(eventNotificatorServiceUrl))
+                        .uri(properties.getEventNotificatorServiceUrl()))
                 .route("profile-service", r -> r
                         .path("/api/profiles/**")
                         .filters(f -> f.filter((exchange, chain) -> {
                             System.out.println("[Gateway] Routing to profile-service: " + exchange.getRequest().getURI());
                             return chain.filter(exchange);
                         }))
-                        .uri(profileServiceUrl))
+                        .uri(properties.getProfileServiceUrl()))
+                .route("file-storage-service", r -> r
+                        .path("/api/files/**")
+                        .filters(f -> f.filter((exchange, chain) -> {
+                            System.out.println("[Gateway] Routing to file-storage-service: " + exchange.getRequest().getURI());
+                            return chain.filter(exchange);
+                        }))
+                        .uri(properties.getFileStorageServiceUrl())
+                )
                 .build();
     }
 }

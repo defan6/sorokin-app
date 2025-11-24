@@ -1,7 +1,9 @@
 package com.ddos.profile.controller;
 
 import com.ddos.profile.dto.ProfileResponse;
+import com.ddos.profile.dto.SetProfilePhotoRequest;
 import com.ddos.profile.dto.UpdateProfileRequest;
+import com.ddos.profile.service.DefaultProfileService;
 import com.ddos.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +32,12 @@ public class ProfileController {
     @GetMapping("/{userId}")
     public ResponseEntity<ProfileResponse> getProfileById(@PathVariable Long userId) {
         return ResponseEntity.ok(profileService.getProfileByUserId(userId));
+    }
+
+
+    @PatchMapping("/set-photo-url")
+    public ResponseEntity<ProfileResponse> setPhotoUrl(@AuthenticationPrincipal Long currentUserId,
+                                                       @RequestBody SetProfilePhotoRequest request) {
+        return ResponseEntity.ok(profileService.setProfilePhoto(currentUserId, request));
     }
 }

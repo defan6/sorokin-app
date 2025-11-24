@@ -1,34 +1,21 @@
 package com.ddos.profile.service;
 
+import com.ddos.profile.dto.CreateProfileRequest;
 import com.ddos.profile.dto.ProfileResponse;
+import com.ddos.profile.dto.SetProfilePhotoRequest;
 import com.ddos.profile.dto.UpdateProfileRequest;
-import com.ddos.profile.mapper.ProfileDtoMapper;
-import com.ddos.profile.model.Profile;
-import com.ddos.profile.repository.ProfileRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-@Service
-@RequiredArgsConstructor
-public class ProfileService {
+public interface ProfileService {
 
-    private final ProfileRepository profileRepository;
-    private final ProfileDtoMapper profileDtoMapper;
+    ProfileResponse getProfileByUserId(Long userId);
 
-    public ProfileResponse getProfileByUserId(Long userId) {
-        Profile profile = profileRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
-        return profileDtoMapper.toResponse(profile);
-    }
+    ProfileResponse updateProfile(Long userId, UpdateProfileRequest request);
 
-    public ProfileResponse updateProfile(Long userId, UpdateProfileRequest request) {
-        Profile profile = profileRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
+    void createProfile(CreateProfileRequest createProfileRequest);
 
-        profileDtoMapper.updateProfileFromRequest(request, profile);
-        Profile updatedProfile = profileRepository.save(profile);
-        return profileDtoMapper.toResponse(updatedProfile);
-    }
+
+    ProfileResponse setProfilePhoto(Long userId, SetProfilePhotoRequest request);
+
+
+
 }

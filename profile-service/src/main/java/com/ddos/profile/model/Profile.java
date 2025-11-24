@@ -31,6 +31,9 @@ public class Profile {
     @Column(length = 255)
     private String avatarUrl;
 
+    @Column(length = 255)
+    private String address;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

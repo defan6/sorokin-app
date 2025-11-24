@@ -10,5 +10,6 @@ public class ProfileResponse {
     private String username;
     private String fullName;
     private String bio;
+    private String address;
     private String avatarUrl;
 }

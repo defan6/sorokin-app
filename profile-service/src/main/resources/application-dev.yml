@@ -6,5 +6,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  kafka:
+    bootstrap-servers: localhost:9093
 server:
   port: 7084
+file-storage:
+  url: http://localhost:7085

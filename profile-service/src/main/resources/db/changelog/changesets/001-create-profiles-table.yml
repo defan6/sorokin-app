@@ -28,6 +28,9 @@ databaseChangeLog:
                   name: avatar_url
                   type: VARCHAR(255)
               - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
                   name: created_at
                   type: TIMESTAMP
                   constraints:
