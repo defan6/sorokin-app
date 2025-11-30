@@ -1,0 +1,8 @@
+server:
+  port: 8083
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: profiles-bucket-minio

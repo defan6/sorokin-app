@@ -1,13 +1,11 @@
-event:
-  manager:
-    service:
-      url: http://localhost:7082
-  notificator:
-      service:
-        url: http://localhost:7083
-auth:
-  service:
-    url: http://localhost:7081
+services:
+  urls:
+    event-manager-service-url: http://localhost:7082
+    event-notificator-service-url: http://localhost:7083
+    profile-service-url: http://localhost:7084
+    auth-service-url: http://localhost:7081
+    file-storage-service-url: http://localhost:7085
+
 jwt:
   secret: N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
 server:

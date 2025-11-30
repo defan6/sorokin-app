@@ -22,10 +22,11 @@ public interface AuthMapper {
     @Mapping(target = "accessToken", source = "jwt")
     LoginResponse toLoginResponse(String jwt, Auth auth);
 
-    @Mapping(target = "username", expression = "java(request.getUsername())")
-    @Mapping(target = "fullName", expression = "java(request.getFullName())")
     Auth toAuth(RegisterRequest request);
 
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "username", source = "auth.username")
+    @Mapping(target = "fullName", source = "auth.fullName")
     @Mapping(target = "role", source = "role")
-    EventRegisterUser toEventRegisterUser(String role, Auth auth);
+    EventRegisterUser toEventRegisterUser(Long userId, String role, Auth auth);
 }

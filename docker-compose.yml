@@ -48,7 +48,7 @@ services:
   postgres:
     hostname: postgres
     container_name: postgres
-    image: postgres:latest
+    image: postgres:17
     ports:
       - "5433:5432"
     environment:
@@ -58,49 +58,21 @@ services:
     volumes:
       - ./db_data_fs:/var/lib/postgresql/data
       - ./db_init:/docker-entrypoint-initdb.d
-  gateway:
-    hostname: gateway
-    container_name: gateway
-    build:
-      context: ./gateway
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - JWT_SECRET=N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
 
-  auth:
-    hostname: auth
-    container_name: auth
-    build:
-      context: ./auth
-      dockerfile: Dockerfile
+  minio:
+    image: minio/minio
+    container_name: minio
     ports:
-      - "8081:8080"
+      - "9000:9000"
+      - "9001:9001"
     environment:
-    - JWT_SECRET=N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
-  event-manager:
-    hostname: event-manager
-    container_name: event-manager
-    build:
-      context: ./event-manager
-      dockerfile: Dockerfile
-    ports:
-      - "8082:8080"
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
 
-  event-notificator:
-    hostname: event-notificator
-    container_name: event-notificator
-    build:
-      context: ./event-notificator
-      dockerfile: Dockerfile
-    ports:
-      - "8083:8080"
-  frontend-event-app:
-    hostname: frontend-event-app
-    container_name: frontend-event-app
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
+volumes:
+  minio-data:
+
+

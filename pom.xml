@@ -21,6 +21,8 @@
         <module>event-manager</module>
         <module>event-notificator</module>
         <module>gateway</module>
+        <module>profile-service</module>
+        <module>file-storage-service</module>
     </modules>
 
     <properties>
