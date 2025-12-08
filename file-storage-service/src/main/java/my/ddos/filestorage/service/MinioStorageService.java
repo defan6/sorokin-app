@@ -2,12 +2,17 @@ package my.ddos.filestorage.service;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import my.ddos.filestorage.dto.UploadPhotoResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 @Service
@@ -21,6 +26,7 @@ public class MinioStorageService implements FileStorageService {
 
     @Value("${minio.endpoint}")
     private String minioEndpoint;
+
     @Override
     public UploadPhotoResponse uploadFile(MultipartFile file, String userId) {
         try {
@@ -36,8 +42,22 @@ public class MinioStorageService implements FileStorageService {
                             .build()
             );
             return new UploadPhotoResponse(String.format("%s/%s/%s", minioEndpoint, bucketName, objectName));
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Failed to upload file to MinIO", e);
+        }
+    }
+
+    @Override
+    public void deleteFile(String userId, String photoUrl) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(photoUrl)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete file from MinIO", e);
         }
     }
 
@@ -46,7 +66,7 @@ public class MinioStorageService implements FileStorageService {
         String uuid = UUID.randomUUID().toString();
         String fileExtension = "";
         int dotIndex = originalFilename.lastIndexOf('.');
-        if(dotIndex > 0){
+        if (dotIndex > 0) {
             fileExtension = originalFilename.substring(dotIndex);
         }
         return String.format("%s_%s_%s", userId, uuid, fileExtension);

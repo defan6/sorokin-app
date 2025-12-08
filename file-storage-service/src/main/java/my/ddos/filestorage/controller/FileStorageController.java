@@ -24,4 +24,13 @@ public class FileStorageController {
         }
         return ResponseEntity.ok(fileStorageService.uploadFile(file, userId));
     }
+
+
+    @DeleteMapping("/delete/profile/photo")
+    public ResponseEntity<Void> deleteProfilePhoto(@RequestHeader("X-User-Id") String userId,
+                                                   @RequestParam("photoUrl") String photoUrl){
+        fileStorageService.deleteFile(userId, photoUrl);
+        return ResponseEntity.noContent().build();
+
+    }
 }

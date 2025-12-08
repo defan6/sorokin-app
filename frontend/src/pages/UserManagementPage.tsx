@@ -9,19 +9,18 @@ const UserManagementPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const currentUser = useMemo(() => AuthService.getCurrentUser(), []);
 
-    const fetchUsers = () => {
+    const fetchUsers = async () => {
         setLoading(true);
-        UserService.getAllUsers()
-            .then(response => {
-                setUsers(response.data);
-            })
-            .catch(err => {
-                console.error("Failed to fetch users", err);
-                setError(err.response?.data?.message || 'Failed to load users.');
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        try {
+            const users = await UserService.getAllUsers();
+            setUsers(users);
+            setError(null);
+        } catch (err: any) {
+            console.error("Failed to fetch users", err);
+            setError(err.response?.data?.message || 'Failed to load users.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -60,13 +59,14 @@ const UserManagementPage: React.FC = () => {
     return (
         <Container className="mt-4">
             <h2>User Management</h2>
-            <Table striped bordered hover responsive>
+            <Table striped bordered hover responsive className="table-danger border-danger">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
                         <th>Full Name</th>
                         <th>Roles</th>
+                        <th>Photo</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -77,6 +77,11 @@ const UserManagementPage: React.FC = () => {
                             <td>{user.username}</td>
                             <td>{user.fullName}</td>
                             <td>{user.userRoles.map(r => r.role).join(', ')}</td>
+                            <td>
+                                {user.avatarUrl && (
+                                    <img src={user.avatarUrl} alt="User Avatar" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} />
+                                )}
+                            </td>
                             <td>
                                 {/* Не даем админу понизить самого себя */}
                                 {user.username !== currentUser?.username && (
