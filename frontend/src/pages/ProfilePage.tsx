@@ -1,43 +1,71 @@
 import {useEffect, useState} from "react";
-import AuthService from "../services/AuthService";
-
-
-interface User {
-    accessToken: string
-    username: string
-    fullName: string
-}
-
+import userService, {User as UserServiceUser} from "../services/UserService"; // Import User interface from UserService
 
 const ProfilePage: React.FC = () => {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-
+    // Use the User type from UserService for state
+    const [currentUser, setCurrentUser] = useState<UserServiceUser | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const user = AuthService.getCurrentUser();
-        if(user){
-            setCurrentUser(user);
-        }
+        const fetchProfile = async () => {
+            try {
+                setLoading(true);
+                // Fetch the full user profile including photo URL
+                const response = await userService.getUserProfile();
+                setCurrentUser(response.data);
+                console.log("Photo url: ", response.data.avatarUrl);
+                setError(null);
+            } catch (err: any) {
+                console.error("Error fetching user profile:", err);
+                setError("Failed to load profile data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
     }, []);
 
-
     return  (
-        <div>
-            <header className="jumbotron">
+        <div className="container mt-4">
+            <header className="mb-4">
                 <h3>
-                    <strong>{currentUser?.username}Profile</strong>
+                    <strong>Profile</strong>
                 </h3>
             </header>
+            {loading && <p>Loading profile...</p>}
+            {error && <p className="text-danger">{error}</p>}
             {currentUser ? (
-                <div>
-                    <p>
-                        <strong>Token:</strong> {currentUser.accessToken.substring(0, 20)}...
-
-                    </p>
+                <div className="card p-3">
+                    <div className="row align-items-center">
+                        <div className="col-md-3 text-center">
+                            {currentUser.avatarUrl ? (
+                                <img 
+                                    src={currentUser.avatarUrl}
+                                    alt="Profile"
+                                    className="img-fluid rounded-circle" 
+                                    style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                                />
+                            ) : (
+                                <div className="placeholder-profile-photo d-flex justify-content-center align-items-center rounded-circle bg-secondary text-white" style={{ width: '150px', height: '150px', fontSize: '3rem' }}>
+                                    {currentUser.fullName?.charAt(0).toUpperCase() || currentUser.username?.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+                        <div className="col-md-9">
+                            <h4><strong>{currentUser.fullName}</strong></h4>
+                            <p><strong>Username:</strong> {currentUser.username}</p>
+                            {/* Displaying roles if available */}
+                            {currentUser.userRoles && currentUser.userRoles.length > 0 && (
+                                <p><strong>Roles:</strong> {currentUser.userRoles.map(role => role.role).join(', ')}</p>
+                            )}
+                            {/* Token display is removed as we are fetching detailed user data */}
+                            {/* <p><strong>Token:</strong> {currentUser.accessToken.substring(0, 20)}...</p> */}
+                        </div>
+                    </div>
                 </div>
-            ) : (
-                <p>No user is logged in. </p>
-            )}
+            ) : (!loading && !error && <p>No user is logged in.</p>) /* Show this only if not loading and no error */}
         </div>
     );
 };

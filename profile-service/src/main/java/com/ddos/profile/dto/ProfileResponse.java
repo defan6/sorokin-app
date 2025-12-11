@@ -13,3 +13,4 @@ public class ProfileResponse {
     private String address;
     private String avatarUrl;
 }
+
