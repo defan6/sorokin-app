@@ -1,16 +1,6 @@
 import {useEffect, useState} from "react";
 import userService, {User as UserServiceUser} from "../services/UserService"; // Import User interface from UserService
 
-// Extend the local User interface to match the one from UserService, or just use UserServiceUser directly
-interface User extends UserServiceUser {
-    // accessToken and other fields from AuthService.getCurrentUser() might still be relevant
-    // but we'll prioritize fetching the full profile from UserService
-    // For now, let's assume we might still need accessToken for some display purposes or rely solely on userServiceUser structure.
-    // If AuthService.getCurrentUser() returns a different structure, we'll need to map it.
-    // For simplicity, let's align the state with UserServiceUser structure.
-}
-
-
 const ProfilePage: React.FC = () => {
     // Use the User type from UserService for state
     const [currentUser, setCurrentUser] = useState<UserServiceUser | null>(null);
