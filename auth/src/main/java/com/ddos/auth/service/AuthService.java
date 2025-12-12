@@ -13,4 +13,8 @@ public interface AuthService {
     LoginResponse login(LoginRequest loginRequest);
 
     void changeRole(EventChangedRole eventChangedRole);
+
+    void logout(String token);
+
+    void validateToken(String token);
 }
