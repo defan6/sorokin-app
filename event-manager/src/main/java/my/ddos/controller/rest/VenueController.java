@@ -32,6 +32,7 @@ public class VenueController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VenueResponse> createVenue(@RequestBody VenueRequest venueRequest) {
         VenueResponse created = venueService.create(venueRequest);
         URI location = URI.create("api/venues/" + created.getId());
@@ -40,18 +41,21 @@ public class VenueController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VenueResponse> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(venueService.getVenue(id));
     }
 
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VenueResponse> patchVenue(@PathVariable("id") Long id, @RequestBody PatchVenueRequest patchVenueRequest) {
         return ResponseEntity.ok(venueService.patchVenue(id, patchVenueRequest));
     }
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteVenue(@PathVariable("id") Long id) {
         venueService.deleteVenue(id);
         return ResponseEntity.noContent().build();

@@ -39,7 +39,7 @@ public class EventController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PatchMapping("/admin/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<EventResponse> patchEvent(@PathVariable("id") Long id,
                                                     @RequestBody PatchEventRequest patchEventRequest,
                                                     @RequestHeader("X-Username") String username){

@@ -1,13 +1,20 @@
 package my.ddos.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import my.ddos.CreateAuthenticationObjectFilter;
+import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.UserController;
+import my.ddos.handlers.CustomAccessDeniedHandler;
+import my.ddos.handlers.CustomAuthenticationEntryPoint;
 import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.user.UserResponse;
 import my.ddos.service.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,7 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(controllers = UserController.class)
+@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class, CustomAccessDeniedHandler.class, CustomAuthenticationEntryPoint.class})
 class UserControllerTest {
 
     @Autowired
@@ -36,7 +44,7 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    void getInfoAboutMe() throws Exception {
+    void getInfoAboutMe_asUser_shouldReturnOk() throws Exception {
         // Given
         String username = "testuser";
         UserResponse userResponse = new UserResponse();
@@ -45,24 +53,39 @@ class UserControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/manager/users/me")
-                        .header("X-Username", username))
+                        .header("X-User-Id", "1")
+                        .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_USER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username));
     }
 
     @Test
-    void getAllUsers_shouldReturnAllUsers() throws Exception {
+    void getAllUsers_asAdmin_shouldReturnAllUsers() throws Exception {
         // Given
         when(userService.getAll()).thenReturn(Collections.emptyList());
 
         // When & Then
-        mockMvc.perform(get("/api/manager/users/admin"))
+        mockMvc.perform(get("/api/manager/users")
+                        .header("X-User-Id", "1")
+                        .header("X-Username", "admin")
+                        .header("X-User-Roles", "ROLE_ADMIN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(0));
     }
 
     @Test
-    void changeRole_shouldChangeUserRole() throws Exception {
+    void getAllUsers_asUser_shouldReturnForbidden() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/api/manager/users")
+                        .header("X-User-Id", "2")
+                        .header("X-Username", "user")
+                        .header("X-User-Roles", "ROLE_USER"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void changeRole_asAdmin_shouldChangeUserRole() throws Exception {
         // Given
         String changedBy = "admin";
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest(1L, "ROLE_ADMIN");
@@ -71,11 +94,29 @@ class UserControllerTest {
         when(userService.changeRole(eq(changedBy), any(ChangeRoleRequest.class))).thenReturn(userResponse);
 
         // When & Then
-        mockMvc.perform(patch("/api/manager/users/admin/change-role")
+        mockMvc.perform(patch("/api/manager/users/change-role")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "1")
                         .header("X-Username", changedBy)
+                        .header("X-User-Roles", "ROLE_ADMIN")
                         .content(objectMapper.writeValueAsString(changeRoleRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    void changeRole_asUser_shouldReturnForbidden() throws Exception {
+        // Given
+        String changedBy = "user";
+        ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest(1L, "ROLE_ADMIN");
+
+        // When & Then
+        mockMvc.perform(patch("/api/manager/users/change-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "2")
+                        .header("X-Username", changedBy)
+                        .header("X-User-Roles", "ROLE_USER")
+                        .content(objectMapper.writeValueAsString(changeRoleRequest)))
+                .andExpect(status().isForbidden());
     }
 }
