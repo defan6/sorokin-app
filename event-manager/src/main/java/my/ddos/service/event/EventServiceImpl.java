@@ -56,6 +56,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventResponse createEvent(EventRequest eventRequest, String username) {
+        eventValidator.validateEventRequest(eventRequest);
         Event event = eventMapper.toEntity(eventRequest);
         UserResponse organizer = userService.getInfoAboutCurrentUser(username);
         event.setOrganizer(entityManager.getReference(User.class, organizer.getId()));
@@ -69,9 +70,7 @@ public class EventServiceImpl implements EventService {
     public EventResponse patchEvent(Long id, PatchEventRequest patchEventRequest, String changedBy) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found."));
-        patchEventRequest.title().ifPresent(event::setTitle);
-        patchEventRequest.eventDate().ifPresent(event::setEventDate);
-        patchEventRequest.description().ifPresent(event::setDescription);
+        eventMapper.patchFromRequest(patchEventRequest, event);
         Event savedEvent = eventRepository.save(event);
         EventChangedEvent eventChangedEvent = eventChangedEventMapper.toEventChanged(savedEvent, changedBy);
         kafkaChangeEventProducer.sendToChangeEventTopic(eventChangedEvent);

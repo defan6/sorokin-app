@@ -4,8 +4,10 @@ package my.ddos.exception.handler;
 import my.ddos.exception.*;
 import my.ddos.model.dto.ExceptionBody;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
@@ -13,37 +15,53 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
 
-    @ExceptionHandler
-    public ResponseEntity<ExceptionBody> handleBookingValidate(BookingValidateException e){
-        return ResponseEntity.badRequest().body(new ExceptionBody("Booking failed", e.getErrors()));
+    @ExceptionHandler(BookingValidateException.class)
+    public ProblemDetail handleBookingValidate(BookingValidateException e){
+        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pb.setTitle("Booking failed");
+        pb.setDetail(String.join(", ", e.getErrors()));
+        return pb;
     }
 
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionBody> handleVenueValidate(VenueValidateException e){
-        return ResponseEntity.badRequest().body(new ExceptionBody("Invalid venue", e.getErrors()));
+    public ProblemDetail handleVenueValidate(VenueValidateException e){
+        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pb.setTitle("Venue failed");
+        pb.setDetail(String.join(", ", e.getErrors()));
+        return pb;
     }
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionBody> handleEventValidate(EventValidateException e){
-        return ResponseEntity.badRequest().body(new ExceptionBody("Invalid event", e.getErrors()));
+    public ProblemDetail handleEventValidate(EventValidateException e){
+        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pb.setTitle("Invalid event");
+        pb.setDetail(String.join(", ", e.getErrors()));
+        return pb;
     }
     @ExceptionHandler
-    public ResponseEntity<ExceptionBody> handleUserAlreadyRegisteredForEvent(
+    public ProblemDetail handleUserAlreadyRegisteredForEvent(
             UserAlreadyRegisteredForEventException e
     ){
-        return ResponseEntity.badRequest().body(new ExceptionBody("Invalid event", e.getErrors()));
+        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pb.setTitle("Invalid event");
+        pb.setDetail(String.join(", ", e.getErrors()));
+        return pb;
     }
 
 
     @ExceptionHandler
-    public ResponseEntity<String> handleEventNotFoundException(EventNotFoundException e){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    public ProblemDetail handleEventNotFoundException(EventNotFoundException e){
+        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pb.setDetail(e.getMessage());
+        return pb;
     }
 
 
     @ExceptionHandler
-    public ResponseEntity<String> handleException(Exception e){
-        return ResponseEntity.badRequest().body(e.getMessage());
+    public ProblemDetail handleException(Exception e){
+        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pb.setDetail(e.getMessage());
+        return pb;
     }
 }

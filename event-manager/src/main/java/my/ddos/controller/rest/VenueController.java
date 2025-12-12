@@ -1,5 +1,6 @@
 package my.ddos.controller.rest;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.venue.PatchVenueRequest;
 import my.ddos.model.dto.venue.VenueRequest;
@@ -39,7 +40,7 @@ public class VenueController {
 
 
     @PatchMapping("/{id}")
-    public ResponseEntity<VenueResponse> patchVenue(@PathVariable("id") Long id, @RequestBody PatchVenueRequest patchVenueRequest){
+    public ResponseEntity<VenueResponse> patchVenue(@PathVariable("id") Long id, @RequestBody @Valid PatchVenueRequest patchVenueRequest){
         return ResponseEntity.ok(venueService.patchVenue(id, patchVenueRequest));
     }
 

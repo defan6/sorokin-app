@@ -1,5 +1,6 @@
 package my.ddos.controller.kafka;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.ddos.event.EventRegisterUser;

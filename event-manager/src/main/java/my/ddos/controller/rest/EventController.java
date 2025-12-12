@@ -1,5 +1,6 @@
 package my.ddos.controller.rest;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.event.EventRequest;
 import my.ddos.model.dto.event.EventResponse;
@@ -39,7 +40,7 @@ public class EventController {
 
     @PatchMapping("/admin/{id}")
     public ResponseEntity<EventResponse> patchEvent(@PathVariable("id") Long id,
-                                                    @RequestBody PatchEventRequest patchEventRequest,
+                                                    @RequestBody @Valid PatchEventRequest patchEventRequest,
                                                     @RequestHeader("X-Username") String username){
         return ResponseEntity.ok(eventService.patchEvent(id, patchEventRequest, username));
     }
