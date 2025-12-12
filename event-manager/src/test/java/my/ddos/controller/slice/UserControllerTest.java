@@ -36,7 +36,7 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    void getInfoAboutCurrentUser_shouldReturnUser() throws Exception {
+    void getInfoAboutMe() throws Exception {
         // Given
         String username = "testuser";
         UserResponse userResponse = new UserResponse();

@@ -7,6 +7,7 @@ import my.ddos.model.dto.event.PatchEventRequest;
 import my.ddos.service.event.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -29,7 +30,8 @@ public class EventController {
     }
 
 
-    @PostMapping("/admin")
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SINGER')")
     public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest,
                                                      @RequestHeader("X-Username") String username){
         EventResponse created = eventService.createEvent(eventRequest, username);
@@ -44,7 +46,8 @@ public class EventController {
         return ResponseEntity.ok(eventService.patchEvent(id, patchEventRequest, username));
     }
 
-    @DeleteMapping("/admin/{id}")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable("id") Long id){
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
