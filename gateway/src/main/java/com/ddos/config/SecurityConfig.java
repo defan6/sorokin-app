@@ -21,6 +21,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationWebFilter jwtAuthenticationWebFilter;
 
+
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http){
         return http
@@ -31,7 +32,8 @@ public class SecurityConfig {
                                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                                 .pathMatchers("/api/auth/login/**").permitAll()
                                 .pathMatchers("/api/auth/register/user/**").permitAll()
-                                .anyExchange().authenticated())
+                                .anyExchange().authenticated()
+                )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION) //was problem here
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
