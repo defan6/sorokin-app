@@ -1,9 +1,6 @@
 package my.ddos.config.security;
 
-import lombok.RequiredArgsConstructor;
 import my.ddos.CreateAuthenticationObjectFilter;
-import my.ddos.handlers.CustomAccessDeniedHandler;
-import my.ddos.handlers.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -27,11 +24,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .anyRequest()
                         .authenticated()
-                )
-                .exceptionHandling(e ->
-                        e
-                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-                                .accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .addFilterBefore(createAuthenticationObjectFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

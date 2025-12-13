@@ -34,6 +34,7 @@ public class SecurityConfig {
                                 .pathMatchers("/api/auth/register/user/**").permitAll()
                                 .anyExchange().authenticated()
                 )
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new CustomAuthenticationEntryPointHandler()))
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION) //was problem here
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
