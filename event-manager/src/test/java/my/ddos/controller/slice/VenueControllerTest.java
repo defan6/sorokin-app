@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import my.ddos.CreateAuthenticationObjectFilter;
 import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.VenueController;
-import my.ddos.handlers.CustomAccessDeniedHandler;
-import my.ddos.handlers.CustomAuthenticationEntryPoint;
 import my.ddos.model.dto.venue.PatchVenueRequest;
 import my.ddos.model.dto.venue.VenueRequest;
 import my.ddos.model.dto.venue.VenueResponse;
@@ -13,8 +11,6 @@ import my.ddos.service.venue.VenueService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(controllers = VenueController.class)
-@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class, CustomAccessDeniedHandler.class, CustomAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class})
 class VenueControllerTest {
 
     @Autowired

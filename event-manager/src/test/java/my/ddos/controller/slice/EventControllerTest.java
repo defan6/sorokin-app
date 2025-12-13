@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import my.ddos.CreateAuthenticationObjectFilter;
 import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.EventController;
-import my.ddos.handlers.CustomAccessDeniedHandler;
-import my.ddos.handlers.CustomAuthenticationEntryPoint;
 import my.ddos.model.dto.event.EventRequest;
 import my.ddos.model.dto.event.EventResponse;
 import my.ddos.model.dto.event.PatchEventRequest;
@@ -13,15 +11,12 @@ import my.ddos.service.event.EventService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(controllers = EventController.class)
-@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class, CustomAccessDeniedHandler.class, CustomAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class})
 class EventControllerTest {
 
     @Autowired

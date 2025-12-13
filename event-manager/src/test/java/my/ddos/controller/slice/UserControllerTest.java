@@ -4,16 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import my.ddos.CreateAuthenticationObjectFilter;
 import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.UserController;
-import my.ddos.handlers.CustomAccessDeniedHandler;
-import my.ddos.handlers.CustomAuthenticationEntryPoint;
 import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.user.UserResponse;
 import my.ddos.service.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(controllers = UserController.class)
-@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class, CustomAccessDeniedHandler.class, CustomAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class})
 class UserControllerTest {
 
     @Autowired
