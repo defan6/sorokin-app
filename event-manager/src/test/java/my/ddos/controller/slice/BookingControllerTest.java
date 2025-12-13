@@ -3,10 +3,7 @@ package my.ddos.controller.slice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import my.ddos.controller.rest.BookingController;
 import my.ddos.enums.BookingStatus;
-import my.ddos.model.dto.booking.BookingRequest;
-import my.ddos.model.dto.booking.CancelBookingRequest;
-import my.ddos.model.dto.booking.RegisterBookingResponse;
-import my.ddos.model.dto.booking.UserBookingResponse;
+import my.ddos.model.dto.booking.*;
 import my.ddos.service.booking.BookingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +84,8 @@ class BookingControllerTest {
         // Given
         String username = "testuser";
         CancelBookingRequest cancelBookingRequest = new CancelBookingRequest(1L);
-        doNothing().when(bookingService).cancelBooking(eq(username), any(CancelBookingRequest.class));
+        when(bookingService.cancelBooking(eq(username), any(CancelBookingRequest.class)))
+                .thenReturn(new CancelBookingResponse("Success"));
 
         // When & Then
         mockMvc.perform(post("/api/manager/bookings/cancel")

@@ -17,6 +17,7 @@ import my.ddos.model.entity.User;
 import my.ddos.repository.BookingRepository;
 import my.ddos.service.booking.BookingServiceImpl;
 import my.ddos.service.event.EventService;
+import my.ddos.service.i18n.MessageService;
 import my.ddos.service.user.UserService;
 import my.ddos.validator.BookingValidator;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,9 @@ class BookingServiceImplTest {
     private KafkaBookingProducer kafkaBookingProducer;
     @Mock
     private BookingValidator bookingValidator;
+
+    @Mock
+    private MessageService messageService;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -186,7 +190,8 @@ class BookingServiceImplTest {
         when(entityManager.getReference(eq(Event.class), anyLong())).thenReturn(new Event());
         when(bookingRepository.save(any(Booking.class))).thenReturn(savedBooking);
         when(bookingMapper.toRegisterBookingResponse(nullable(String.class), any(Booking.class))).thenReturn(expectedResponse);
-        when(eventBookingMapper.toEventBooking(anyString(), nullable(String.class), any(Booking.class))).thenReturn(new EventBooking(null, 1L, BookingStatus.REGISTERED, null, username));
+        when(eventBookingMapper.toEventBooking(any(Booking.class))).thenReturn(new EventBooking(1L, BookingStatus.REGISTERED, LocalDateTime.now(), username));
+        when(messageService.getMessage(eq("user.register.success.on.event"), any())).thenReturn("Booking created successfully");
 
 
         // When
@@ -259,14 +264,14 @@ class BookingServiceImplTest {
         User user = new User();
         user.setId(userId);
 
-        Booking booking = new Booking();
+        Booking booking = new Booking(1L, null, null, BookingStatus.REGISTERED, LocalDateTime.now());
         booking.setId(bookingId);
         booking.setUser(user);
         booking.setBookingStatus(BookingStatus.REGISTERED);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         when(userService.getInfoAboutCurrentUser(username)).thenReturn(userResponse);
-        when(eventBookingMapper.toEventBooking(anyString(), nullable(String.class), any(Booking.class))).thenReturn(new EventBooking(null, 1L, BookingStatus.CANCELLED, null, username));
+        when(eventBookingMapper.toEventBooking(any(Booking.class))).thenReturn(new EventBooking(1L, BookingStatus.CANCELLED, LocalDateTime.now(), username));
 
         // When
         bookingService.cancelBooking(username, cancelRequest);
@@ -278,6 +283,7 @@ class BookingServiceImplTest {
 
         assertThat(savedBooking.getBookingStatus()).isEqualTo(BookingStatus.CANCELLED);
         verify(kafkaBookingProducer).sendToBookingTopic(any(EventBooking.class));
+        verify(messageService, times(1)).getMessage(eq("user.cancel.booking.success"), any());
     }
 
     @Test
@@ -288,6 +294,9 @@ class BookingServiceImplTest {
         CancelBookingRequest cancelRequest = new CancelBookingRequest(bookingId);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+
+
+        when(messageService.getMessage(eq("user.booking.not.found"), any())).thenReturn("Booking with id " + bookingId + " not found");
 
         // When & Then
         assertThatThrownBy(() -> bookingService.cancelBooking(username, cancelRequest))
@@ -313,12 +322,13 @@ class BookingServiceImplTest {
         nonOwnerResponse.setId(2L);
         nonOwnerResponse.setUsername(username);
 
-        Booking booking = new Booking();
+        Booking booking = new Booking(1L, null, null, BookingStatus.REGISTERED, LocalDateTime.now());
         booking.setId(bookingId);
         booking.setUser(owner);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         when(userService.getInfoAboutCurrentUser(username)).thenReturn(nonOwnerResponse);
+        when(messageService.getMessage(any(), any())).thenReturn("Booking with id " + bookingId + " not found");
 
         // When & Then
         assertThatThrownBy(() -> bookingService.cancelBooking(username, cancelRequest))
