@@ -20,7 +20,7 @@ public class KafkaTopicConfig {
 
 
     @Bean
-    public NewTopic createBookingTopic(){
+    public NewTopic createBookingTopic() {
         return TopicBuilder.name(BOOKING_TOPIC)
                 .partitions(3)
                 .replicas(1)
@@ -29,7 +29,7 @@ public class KafkaTopicConfig {
 
 
     @Bean
-    public NewTopic createChangeEventInfoTopic(){
+    public NewTopic createChangeEventInfoTopic() {
         return TopicBuilder.name(CHANGE_EVENT_INFO_TOPIC)
                 .partitions(3)
                 .replicas(1)
@@ -38,7 +38,7 @@ public class KafkaTopicConfig {
 
 
     @Bean
-    public NewTopic createChangeUserRoleTopic(){
+    public NewTopic createChangeUserRoleTopic() {
         return TopicBuilder.name(CHANGE_USER_ROLE_TOPIC)
                 .partitions(3)
                 .replicas(1)

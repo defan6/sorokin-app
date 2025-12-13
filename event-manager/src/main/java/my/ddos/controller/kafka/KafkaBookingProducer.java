@@ -17,16 +17,16 @@ import static my.ddos.config.kafka.KafkaTopicConfig.BOOKING_TOPIC;
 public class KafkaBookingProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void sendToBookingTopic(EventBooking eventBooking){
+    public void sendToBookingTopic(EventBooking eventBooking) {
         Message<Object> kafkaMessage = buildMessage(eventBooking);
         kafkaTemplate.send(kafkaMessage);
         log.info("Sent message to topic {}: {}", BOOKING_TOPIC, eventBooking);
     }
 
 
-    private Message<Object> buildMessage(Object object){
-                return MessageBuilder.withPayload(object)
-                        .setHeader(KafkaHeaders.TOPIC, BOOKING_TOPIC)
-                        .build();
+    private Message<Object> buildMessage(Object object) {
+        return MessageBuilder.withPayload(object)
+                .setHeader(KafkaHeaders.TOPIC, BOOKING_TOPIC)
+                .build();
     }
 }
