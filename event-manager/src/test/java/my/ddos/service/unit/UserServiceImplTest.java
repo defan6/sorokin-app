@@ -13,6 +13,7 @@ import my.ddos.model.entity.Role;
 import my.ddos.model.entity.User;
 import my.ddos.repository.RoleRepository;
 import my.ddos.repository.UserRepository;
+import my.ddos.service.i18n.MessageService;
 import my.ddos.service.user.UserServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,10 @@ class UserServiceImplTest {
 
     @Mock
     private KafkaChangedRoleProducer kafkaChangedRoleProducer;
+
+
+    @Mock
+    private MessageService messageService;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -198,6 +203,7 @@ class UserServiceImplTest {
         String roleName = "ROLE_ADMIN";
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest(userId, roleName);
 
+        when(messageService.getMessage(eq("user.not.found"), any())).thenReturn("User with id " + userId + " not found");
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // When & Then
@@ -222,11 +228,12 @@ class UserServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(roleRepository.findByRole(UserRole.ROLE_ADMIN)).thenReturn(Optional.empty());
+        when(messageService.getMessage(eq("role.not.found"), any())).thenReturn("Role not found");
 
         // When & Then
         assertThatThrownBy(() -> userService.changeRole(changedBy, changeRoleRequest))
                 .isInstanceOf(RoleNotFoundException.class)
-                .hasMessage("Role " + UserRole.ROLE_ADMIN + " not found");
+                .hasMessage("Role not found");
 
         verify(userRepository, never()).save(any(User.class));
         verify(kafkaChangedRoleProducer, never()).sendToChangedRoleTopic(any(my.ddos.event.EventChangedRole.class));
