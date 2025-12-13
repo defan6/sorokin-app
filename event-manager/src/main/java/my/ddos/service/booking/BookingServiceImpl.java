@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import my.ddos.controller.kafka.KafkaBookingProducer;
 import my.ddos.enums.BookingStatus;
+import my.ddos.exception.BookingAlreadyCancelledException;
 import my.ddos.exception.BookingNotFoundException;
 import my.ddos.mapper.BookingMapper;
 import my.ddos.mapper.EventBookingMapper;
@@ -17,6 +18,7 @@ import my.ddos.model.entity.Event;
 import my.ddos.model.entity.User;
 import my.ddos.repository.BookingRepository;
 import my.ddos.service.event.EventService;
+import my.ddos.service.i18n.MessageService;
 import my.ddos.service.user.UserService;
 import my.ddos.validator.BookingValidator;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,11 +33,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
-    @Value("${success.booking.message}")
-    private String successBookingMessage;
-
-    @Value("${success.cancel.booking.message}")
-    private String successCancelBookingMessage;
 
     private final BookingRepository bookingRepository;
     private final EventService eventService;
@@ -45,6 +42,7 @@ public class BookingServiceImpl implements BookingService {
     private final EventBookingMapper eventBookingMapper;
     private final KafkaBookingProducer kafkaBookingProducer;
     private final BookingValidator bookingValidator;
+    private final MessageService messageService;
 
     @Override
     public UserBookingResponse getMyBookings(String username) {
@@ -83,29 +81,37 @@ public class BookingServiceImpl implements BookingService {
         booking.setEvent(event);
 
         Booking savedBooking = bookingRepository.save(booking);
-        EventBooking eventBooking = eventBookingMapper.toEventBooking(username, successBookingMessage, savedBooking);
+        EventBooking eventBooking = eventBookingMapper.toEventBooking(savedBooking);
 
         kafkaBookingProducer.sendToBookingTopic(eventBooking);
 
-        return bookingMapper.toRegisterBookingResponse(successBookingMessage, savedBooking);
+        return bookingMapper.toRegisterBookingResponse(messageService.getMessage("user.register.success.on.event", null), savedBooking);
     }
 
     @Override
-    public void cancelBooking(String username, CancelBookingRequest cancelBookingRequest) {
+    public CancelBookingResponse cancelBooking(String username, CancelBookingRequest cancelBookingRequest) {
         Booking booking = bookingRepository
                 .findById(cancelBookingRequest.bookingId())
                 .orElseThrow(() -> new BookingNotFoundException
-                        ("Booking with id " + cancelBookingRequest.bookingId() + " not found"));
+                        (messageService.getMessage("user.booking.not.found", new Object[]{cancelBookingRequest.bookingId()})));
+
+
+        if(booking.getBookingStatus().equals(BookingStatus.CANCELLED)) {
+            throw new BookingAlreadyCancelledException(messageService.getMessage("user.cancel.booking.already.cancelled",
+                    new Object[]{booking.getEvent().getTitle()}));
+        }
 
         UserResponse userResponse = userService.getInfoAboutCurrentUser(username);
         if (!booking.getUser().getId().equals(userResponse.getId())) {
-            throw new BookingNotFoundException("Booking with id " + cancelBookingRequest.bookingId() + " not found");
+            throw new BookingNotFoundException
+                    (messageService.getMessage("user.booking.not.found", new Object[]{cancelBookingRequest.bookingId()}));
         }
         booking.setBookingStatus(BookingStatus.CANCELLED);
-        EventBooking eventBooking = eventBookingMapper.toEventBooking(username, successCancelBookingMessage, booking);
+        EventBooking eventBooking = eventBookingMapper.toEventBooking(booking);
 
         kafkaBookingProducer.sendToBookingTopic(eventBooking);
         bookingRepository.save(booking);
+        return new CancelBookingResponse(messageService.getMessage("user.cancel.booking.success", null));
     }
 
 
