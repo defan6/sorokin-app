@@ -1,12 +1,17 @@
 package my.ddos.exception.handler;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import my.ddos.exception.*;
 import my.ddos.model.dto.ExceptionBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
 
 @RestControllerAdvice
 
@@ -39,6 +44,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<String> handleEventNotFoundException(EventNotFoundException e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, Object> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        Map<String, Object> body = Map.of(
+                "status", 403,
+                "error", "Forbidden",
+                "message", "You do not have permission to access this resource",
+                "path", request.getRequestURI()
+        );
+        return body;
     }
 
 

@@ -1,5 +1,6 @@
 package com.ddos.auth.service;
 
+import com.ddos.auth.model.CustomUserDetails;
 import com.ddos.auth.model.entity.Auth;
 import com.ddos.auth.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final AuthRepository authRepository;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Auth auth = authRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("Auth not found with username: " + username));
-        List<GrantedAuthority> authorities = auth.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(auth.getUsername(),
-                auth.getPassword(), authorities);
+        Auth auth = authRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Auth not found with username: " + username));
+        return new CustomUserDetails(auth);
     }
 }

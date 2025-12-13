@@ -1,9 +1,11 @@
 package com.ddos.auth.service;
 
+import com.ddos.auth.exception.TokenBlacklistedException;
 import com.ddos.auth.kafka.controller.KafkaRegisterProducer;
 import com.ddos.auth.kafka.event.EventChangedRole;
 import com.ddos.auth.kafka.event.EventRegisterUser;
 import com.ddos.auth.mapper.AuthMapper;
+import com.ddos.auth.model.CustomUserDetails;
 import com.ddos.auth.model.dto.login.LoginRequest;
 import com.ddos.auth.model.dto.login.LoginResponse;
 import com.ddos.auth.model.dto.register.RegisterRequest;
@@ -15,8 +17,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,6 +50,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
 
     private final KafkaRegisterProducer kafkaRegisterProducer;
+
+    private final JwtBlackListService jwtBlackListService;
 
 
     @Override
@@ -79,25 +85,45 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
         validator.validateLoginRequest(loginRequest);
+
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                );
+
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        String username = authentication.getName();
-        Auth auth = authRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " not found"));
-        Set<String> roles = authentication
-                .getAuthorities()
-                .stream()
+
+        // здесь authentication уже содержит UserDetails пользователя
+        CustomUserDetails authDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Set<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
-        String jwt = jwtService.createJwtToken(auth.getId(), username, roles);
-        return new LoginResponse(username, roles, jwt);
+
+        String jwt = jwtService.createJwtToken(authDetails.getId(), authDetails.getUsername(), roles);
+
+        return new LoginResponse(authDetails.getUsername(), roles, jwt);
     }
+
 
     @Override
     public void changeRole(EventChangedRole eventChangedRole) {
         Auth auth = authRepository.findByUsername(eventChangedRole.username()).orElseThrow();
         auth.getRoles().add(eventChangedRole.role());
         authRepository.save(auth);
+    }
+
+    @Override
+    public void logout(String token) {
+        jwtBlackListService.add(token.substring(7));
+    }
+
+    @Override
+    public void validateToken(String token) {
+        String extractedToken = token.substring(7);
+        if (jwtBlackListService.isBlacklisted(extractedToken)) {
+            throw new TokenBlacklistedException("Token is blacklisted");
+        }
     }
 }

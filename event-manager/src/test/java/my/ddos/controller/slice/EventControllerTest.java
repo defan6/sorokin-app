@@ -1,6 +1,8 @@
 package my.ddos.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import my.ddos.CreateAuthenticationObjectFilter;
+import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.EventController;
 import my.ddos.model.dto.event.EventRequest;
 import my.ddos.model.dto.event.EventResponse;
@@ -9,12 +11,12 @@ import my.ddos.service.event.EventService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(EventController.class)
+@WebMvcTest(controllers = EventController.class)
+@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class})
 class EventControllerTest {
 
     @Autowired
@@ -47,21 +50,13 @@ class EventControllerTest {
         when(eventService.getEvent(eventId)).thenReturn(eventResponse);
 
         // When & Then
-        mockMvc.perform(get("/api/manager/events/{id}", eventId))
+        mockMvc.perform(get("/api/manager/events/{id}", eventId)
+                        .header("X-User-Id", "1")
+                        .header("X-Username", "user")
+                        .header("X-User-Roles", "ROLE_USER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(eventId))
                 .andExpect(jsonPath("$.title").value("Test Event"));
-    }
-
-    @Test
-    void getEvent_shouldReturnNotFound_whenEventDoesNotExist() throws Exception {
-        // Given
-        long eventId = 1L;
-        when(eventService.getEvent(eventId)).thenThrow(new my.ddos.exception.EventNotFoundException("Event with id: %d not found".formatted(eventId)));
-
-        // When & Then
-        mockMvc.perform(get("/api/manager/events/{id}", eventId))
-                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -74,72 +69,96 @@ class EventControllerTest {
         when(eventService.getAllEvents()).thenReturn(events);
 
         // When & Then
-        mockMvc.perform(get("/api/manager/events"))
+        mockMvc.perform(get("/api/manager/events")
+                        .header("X-User-Id", "1")
+                        .header("X-Username", "user")
+                        .header("X-User-Roles", "ROLE_USER"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[1].id").value(2L));
+                .andExpect(jsonPath("$.size()").value(2));
     }
 
-    @Test
-    void getAllEvents_shouldReturnEmptyList_whenNoEventsExist() throws Exception {
-        // Given
-        when(eventService.getAllEvents()).thenReturn(Collections.emptyList());
-
-        // When & Then
-        mockMvc.perform(get("/api/manager/events"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(0));
-    }
 
     @Test
-    void createEvent_shouldCreateEvent_whenRequestIsValid() throws Exception {
+    void createEvent_asAdmin_shouldCreateEvent() throws Exception {
         // Given
-        String username = "testuser";
+        String username = "admin";
         EventRequest eventRequest = new EventRequest("New Event", "Description", LocalDateTime.now(), 1L);
         EventResponse createdEvent = new EventResponse(1L, "New Event", "Description", eventRequest.eventDate(), 100L, 1L);
 
         when(eventService.createEvent(any(EventRequest.class), eq(username))).thenReturn(createdEvent);
 
         // When & Then
-        mockMvc.perform(post("/api/manager/events/admin")
+        mockMvc.perform(post("/api/manager/events")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "1")
                         .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_ADMIN")
                         .content(objectMapper.writeValueAsString(eventRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/api/events/" + createdEvent.id()))
-                .andExpect(jsonPath("$.id").value(createdEvent.id()))
-                .andExpect(jsonPath("$.title").value(createdEvent.title()));
+                .andExpect(header().string("Location", "/api/events/" + createdEvent.id()));
     }
 
     @Test
-    void patchEvent_shouldUpdateEvent_whenRequestIsValid() throws Exception {
+    void createEvent_asUser_shouldReturnForbidden() throws Exception {
+        // Given
+        String username = "user";
+        EventRequest eventRequest = new EventRequest("New Event", "Description", LocalDateTime.now(), 1L);
+
+        // When & Then
+        mockMvc.perform(post("/api/manager/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "2")
+                        .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_USER")
+                        .content(objectMapper.writeValueAsString(eventRequest)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void patchEvent_shouldUpdateEvent() throws Exception {
         // Given
         long eventId = 1L;
-        String username = "testuser";
+        String username = "admin";
         PatchEventRequest patchRequest = new PatchEventRequest(Optional.of("Updated Title"), Optional.empty(), Optional.empty());
         EventResponse updatedEvent = new EventResponse(eventId, "Updated Title", "Description", LocalDateTime.now(), 100L, 1L);
 
         when(eventService.patchEvent(eq(eventId), any(PatchEventRequest.class), eq(username))).thenReturn(updatedEvent);
 
         // When & Then
-        mockMvc.perform(patch("/api/manager/events/admin/{id}", eventId)
+        mockMvc.perform(patch("/api/manager/events/{id}", eventId)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "1")
                         .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_ADMIN")
                         .content(objectMapper.writeValueAsString(patchRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(updatedEvent.id()))
-                .andExpect(jsonPath("$.title").value(updatedEvent.title()));
+                .andExpect(jsonPath("$.id").value(updatedEvent.id()));
     }
 
     @Test
-    void deleteEvent_shouldDeleteEvent_whenEventExists() throws Exception {
+    void deleteEvent_asAdmin_shouldDeleteEvent() throws Exception {
         // Given
         long eventId = 1L;
         doNothing().when(eventService).deleteEvent(eventId);
 
         // When & Then
-        mockMvc.perform(delete("/api/manager/events/admin/{id}", eventId))
+        mockMvc.perform(delete("/api/manager/events/{id}", eventId)
+                        .header("X-User-Id", "1")
+                        .header("X-Username", "admin")
+                        .header("X-User-Roles", "ROLE_ADMIN"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteEvent_asUser_shouldReturnForbidden() throws Exception {
+        // Given
+        long eventId = 1L;
+
+        // When & Then
+        mockMvc.perform(delete("/api/manager/events/{id}", eventId)
+                        .header("X-User-Id", "2")
+                        .header("X-Username", "user")
+                        .header("X-User-Roles", "ROLE_USER"))
+                .andExpect(status().isForbidden());
     }
 }

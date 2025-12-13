@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
 
-    @ExceptionHandler
+    @ExceptionHandler(NotificationNotFoundException.class)
     public ResponseEntity<String> handleNotificationNotFound(NotificationNotFoundException e){
         return ResponseEntity.badRequest().body(e.getMessage());
     }
