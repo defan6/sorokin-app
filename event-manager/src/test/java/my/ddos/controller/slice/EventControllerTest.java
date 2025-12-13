@@ -117,7 +117,7 @@ class EventControllerTest {
         // Given
         long eventId = 1L;
         String username = "testuser";
-        PatchEventRequest patchRequest = new PatchEventRequest(Optional.of("Updated Title"), Optional.empty(), Optional.empty());
+        PatchEventRequest patchRequest = new PatchEventRequest("Updated Title", null, null);
         EventResponse updatedEvent = new EventResponse(eventId, "Updated Title", "Description", LocalDateTime.now(), 100L, 1L);
 
         when(eventService.patchEvent(eq(eventId), any(PatchEventRequest.class), eq(username))).thenReturn(updatedEvent);

@@ -16,6 +16,10 @@ public interface EventMapper {
 
     Event toEntity(EventRequest eventRequest);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+            ignoreByDefault = true)
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "eventDate", source = "eventDate")
     void patchFromRequest(PatchEventRequest patchEventRequest, @MappingTarget Event event);
 }

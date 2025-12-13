@@ -13,6 +13,10 @@ public interface VenueMapper {
 
     Venue toEntity(VenueRequest venueRequest);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+            ignoreByDefault = true)
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "address", source = "address")
+    @Mapping(target = "capacity", source = "capacity")
     void patchFromRequest(PatchVenueRequest patchVenueRequest, @MappingTarget Venue venue);
 }

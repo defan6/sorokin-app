@@ -18,6 +18,7 @@ public class VenueRequest {
     @NotBlank(message = "address cannot be empty")
     private String address;
 
+    @NotNull
     @Positive(message = "capacity must be positive")
     private Long capacity;
 }

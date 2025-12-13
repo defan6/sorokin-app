@@ -2,6 +2,7 @@ package my.ddos.exception.handler;
 
 
 import my.ddos.exception.*;
+import my.ddos.exception.detail.CustomProblemDetail;
 import my.ddos.model.dto.ExceptionBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -10,57 +11,71 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
+
 @RestControllerAdvice
 
 public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(BookingValidateException.class)
-    public ProblemDetail handleBookingValidate(BookingValidateException e){
-        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CustomProblemDetail handleBookingValidate(BookingValidateException e){
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setTimestamp(Instant.now());
         pb.setTitle("Booking failed");
         pb.setDetail(String.join(", ", e.getErrors()));
         return pb;
     }
 
 
-    @ExceptionHandler
-    public ProblemDetail handleVenueValidate(VenueValidateException e){
-        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(VenueValidateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CustomProblemDetail handleVenueValidate(VenueValidateException e){
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setTimestamp(Instant.now());
         pb.setTitle("Venue failed");
         pb.setDetail(String.join(", ", e.getErrors()));
         return pb;
     }
 
-    @ExceptionHandler
-    public ProblemDetail handleEventValidate(EventValidateException e){
-        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(EventValidateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CustomProblemDetail handleEventValidate(EventValidateException e){
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setTimestamp(Instant.now());
         pb.setTitle("Invalid event");
         pb.setDetail(String.join(", ", e.getErrors()));
         return pb;
     }
-    @ExceptionHandler
-    public ProblemDetail handleUserAlreadyRegisteredForEvent(
+    @ExceptionHandler(UserAlreadyRegisteredForEventException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CustomProblemDetail handleUserAlreadyRegisteredForEvent(
             UserAlreadyRegisteredForEventException e
     ){
-        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setTimestamp(Instant.now());
         pb.setTitle("Invalid event");
         pb.setDetail(String.join(", ", e.getErrors()));
         return pb;
     }
 
 
-    @ExceptionHandler
-    public ProblemDetail handleEventNotFoundException(EventNotFoundException e){
-        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+    @ExceptionHandler(EventNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CustomProblemDetail handleEventNotFoundException(EventNotFoundException e){
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setTimestamp(Instant.now());
         pb.setDetail(e.getMessage());
         return pb;
     }
 
 
-    @ExceptionHandler
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleException(Exception e){
-        ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setTimestamp(Instant.now());
         pb.setDetail(e.getMessage());
         return pb;
     }
