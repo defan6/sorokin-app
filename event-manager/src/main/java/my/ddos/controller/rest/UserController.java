@@ -1,6 +1,8 @@
 package my.ddos.controller.rest;
 
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.user.UserResponse;
@@ -33,7 +35,7 @@ public class UserController {
     @PatchMapping("/change-role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> changeRole(@RequestHeader("X-Username") String changedBy,
-                                                   @RequestBody ChangeRoleRequest changeRoleRequest){
+                                                   @RequestBody @Valid ChangeRoleRequest changeRoleRequest){
         return ResponseEntity.ok(userService.changeRole(changedBy, changeRoleRequest));
     }
 }

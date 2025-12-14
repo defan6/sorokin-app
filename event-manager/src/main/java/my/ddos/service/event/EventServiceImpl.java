@@ -76,9 +76,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException
                         (messageService.getMessage("event.not.found", new Object[]{id})));
-        patchEventRequest.title().ifPresent(event::setTitle);
-        patchEventRequest.eventDate().ifPresent(event::setEventDate);
-        patchEventRequest.description().ifPresent(event::setDescription);
+        eventMapper.patchFromRequest(patchEventRequest, event);
         Event savedEvent = eventRepository.save(event);
         EventChangedEvent eventChangedEvent = eventChangedEventMapper.toEventChanged(savedEvent, changedBy);
         kafkaChangeEventProducer.sendToChangeEventTopic(eventChangedEvent);

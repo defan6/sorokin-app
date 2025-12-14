@@ -1,6 +1,7 @@
 package my.ddos.controller.rest;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.booking.*;
 import my.ddos.service.booking.BookingService;
@@ -39,7 +40,7 @@ public class BookingController {
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<CancelBookingResponse> cancelBooking(@RequestBody CancelBookingRequest cancelBookingRequest,
+    public ResponseEntity<CancelBookingResponse> cancelBooking(@RequestBody @Valid CancelBookingRequest cancelBookingRequest,
                                                                @RequestHeader("X-Username") String username) {
         return ResponseEntity.ok(bookingService.cancelBooking(username, cancelBookingRequest));
     }

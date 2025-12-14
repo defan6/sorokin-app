@@ -51,7 +51,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getInfoAboutCurrentUser(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with " + username + " wasn't found"));
         return userMapper.toResponse(user);
     }
 

@@ -2,6 +2,7 @@ package my.ddos.service.booking;
 
 
 import jakarta.persistence.EntityManager;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import my.ddos.controller.kafka.KafkaBookingProducer;
 import my.ddos.enums.BookingStatus;

@@ -115,7 +115,7 @@ class VenueControllerTest {
     void patchVenue_AsAdmin_shouldUpdateVenue() throws Exception {
         // Given
         long venueId = 1L;
-        PatchVenueRequest patchRequest = new PatchVenueRequest(Optional.of("Updated Venue"), Optional.empty(), Optional.empty());
+        PatchVenueRequest patchRequest = new PatchVenueRequest("Updated Venue", null, null);
         VenueResponse venueResponse = new VenueResponse(venueId, "Updated Venue", "Address", 100L);
         when(venueService.patchVenue(eq(venueId), any(PatchVenueRequest.class))).thenReturn(venueResponse);
 

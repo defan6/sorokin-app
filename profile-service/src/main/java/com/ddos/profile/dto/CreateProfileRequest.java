@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateProfileRequest {
-    private String userId;
+    private Long userId;
     private String username;
     private String fullName;
     private String photoUrl;

@@ -118,7 +118,7 @@ class UserServiceImplTest {
 
         // When & Then
         assertThatThrownBy(() -> userService.getInfoAboutCurrentUser(username))
-                .isInstanceOf(java.util.NoSuchElementException.class);
+                .isInstanceOf(UserNotFoundException.class);
 
         verify(userRepository).findByUsername(username);
         verify(userMapper, never()).toResponse(any(User.class));

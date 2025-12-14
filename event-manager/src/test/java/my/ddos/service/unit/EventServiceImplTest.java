@@ -22,6 +22,7 @@ import my.ddos.service.i18n.MessageService;
 import my.ddos.service.user.UserService;
 import my.ddos.service.venue.VenueService;
 import my.ddos.validator.EventValidator;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -240,9 +241,9 @@ class EventServiceImplTest {
         String changedBy = "user";
         LocalDateTime newDate = LocalDateTime.now().plusDays(1);
         PatchEventRequest patchRequest = new PatchEventRequest(
-                Optional.of("New Title"),
-                Optional.of("New Description"),
-                Optional.of(newDate)
+                "New Title",
+                "New Description",
+                newDate
         );
 
         Event existingEvent = new Event();
@@ -286,9 +287,9 @@ class EventServiceImplTest {
         Long eventId = 1L;
         String changedBy = "user";
         PatchEventRequest patchRequest = new PatchEventRequest(
-                Optional.of("New Title"),
-                Optional.of("New Description"),
-                Optional.of(LocalDateTime.now())
+                "New Title",
+                "New Description",
+                LocalDateTime.now()
         );
 
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());

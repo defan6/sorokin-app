@@ -55,9 +55,7 @@ public class VenueServiceImpl implements VenueService {
         Venue venue = venueRepository.findById(id)
                 .orElseThrow(() -> new VenueNotFoundException
                         (messageService.getMessage("venue.not.found", new Object[]{id})));
-        patchVenueRequest.address().ifPresent(venue::setAddress);
-        patchVenueRequest.name().ifPresent(venue::setName);
-        patchVenueRequest.capacity().ifPresent(venue::setCapacity);
+        venueMapper.patchFromRequest(patchVenueRequest, venue);
         return venueMapper.toResponse(venueRepository.save(venue));
     }
 
