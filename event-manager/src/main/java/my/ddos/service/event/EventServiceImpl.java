@@ -56,6 +56,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventResponse createEvent(EventRequest eventRequest, String username) {
+        eventValidator.validateEventRequest(eventRequest);
         Event event = eventMapper.toEntity(eventRequest);
         UserResponse organizer = userService.getInfoAboutCurrentUser(username);
         event.setOrganizer(entityManager.getReference(User.class, organizer.getId()));

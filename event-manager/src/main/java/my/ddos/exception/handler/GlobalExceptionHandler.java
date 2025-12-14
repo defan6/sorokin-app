@@ -19,44 +19,55 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(BookingValidateException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CustomProblemDetail handleBookingValidate(BookingValidateException e){
         CustomProblemDetail pb = new CustomProblemDetail();
-        pb.setTimestamp(Instant.now());
+        pb.setStatus(HttpStatus.BAD_REQUEST);
         pb.setTitle("Booking failed");
         pb.setDetail(String.join(", ", e.getErrors()));
+        pb.setTimestamp(Instant.now());
         return pb;
     }
 
 
     @ExceptionHandler(VenueValidateException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CustomProblemDetail handleVenueValidate(VenueValidateException e){
         CustomProblemDetail pb = new CustomProblemDetail();
-        pb.setTimestamp(Instant.now());
+        pb.setStatus(HttpStatus.BAD_REQUEST);
         pb.setTitle("Venue failed");
         pb.setDetail(String.join(", ", e.getErrors()));
+        pb.setTimestamp(Instant.now());
         return pb;
     }
 
     @ExceptionHandler(EventValidateException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CustomProblemDetail handleEventValidate(EventValidateException e){
         CustomProblemDetail pb = new CustomProblemDetail();
-        pb.setTimestamp(Instant.now());
+        pb.setStatus(HttpStatus.BAD_REQUEST);
         pb.setTitle("Invalid event");
         pb.setDetail(String.join(", ", e.getErrors()));
+        pb.setTimestamp(Instant.now());
         return pb;
     }
+
+    @ExceptionHandler(EventAlreadyExistsWithThisTitle.class)
+    public CustomProblemDetail handleExistsEventWithTitle(EventAlreadyExistsWithThisTitle e) {
+        CustomProblemDetail pb = new CustomProblemDetail();
+        pb.setStatus(HttpStatus.BAD_REQUEST);
+        pb.setTitle("Event exists");
+        pb.setDetail(e.getMessage());
+        pb.setTimestamp(Instant.now());
+        return pb;
+    }
+
     @ExceptionHandler(UserAlreadyRegisteredForEventException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CustomProblemDetail handleUserAlreadyRegisteredForEvent(
             UserAlreadyRegisteredForEventException e
     ){
         CustomProblemDetail pb = new CustomProblemDetail();
-        pb.setTimestamp(Instant.now());
+        pb.setStatus(HttpStatus.BAD_REQUEST);
         pb.setTitle("Invalid event");
         pb.setDetail(String.join(", ", e.getErrors()));
+        pb.setTimestamp(Instant.now());
         return pb;
     }
 
@@ -65,18 +76,19 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public CustomProblemDetail handleEventNotFoundException(EventNotFoundException e){
         CustomProblemDetail pb = new CustomProblemDetail();
-        pb.setTimestamp(Instant.now());
+        pb.setStatus(HttpStatus.NOT_FOUND);
         pb.setDetail(e.getMessage());
+        pb.setTimestamp(Instant.now());
         return pb;
     }
 
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleException(Exception e){
         CustomProblemDetail pb = new CustomProblemDetail();
-        pb.setTimestamp(Instant.now());
+        pb.setStatus(HttpStatus.BAD_REQUEST);
         pb.setDetail(e.getMessage());
+        pb.setTimestamp(Instant.now());
         return pb;
     }
 }
