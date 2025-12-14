@@ -7,9 +7,8 @@ import lombok.RequiredArgsConstructor;
 import my.ddos.model.dto.role.ChangeRoleRequest;
 import my.ddos.model.dto.user.UserResponse;
 import my.ddos.service.user.UserService;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,17 +21,19 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getInfoAboutCurrentUser(@RequestHeader("X-Username") String username){
+    public ResponseEntity<UserResponse> getInfoAboutMe(@RequestHeader("X-Username") String username){
         return ResponseEntity.ok(userService.getInfoAboutCurrentUser(username));
     }
 
-    @GetMapping("/admin")
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers(){
         return ResponseEntity.ok(userService.getAll());
     }
 
 
-    @PatchMapping("admin/change-role")
+    @PatchMapping("/change-role")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> changeRole(@RequestHeader("X-Username") String changedBy,
                                                    @RequestBody @Valid ChangeRoleRequest changeRoleRequest){
         return ResponseEntity.ok(userService.changeRole(changedBy, changeRoleRequest));

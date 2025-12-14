@@ -1,16 +1,16 @@
 package my.ddos.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import my.ddos.CreateAuthenticationObjectFilter;
+import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.BookingController;
 import my.ddos.enums.BookingStatus;
-import my.ddos.model.dto.booking.BookingRequest;
-import my.ddos.model.dto.booking.CancelBookingRequest;
-import my.ddos.model.dto.booking.RegisterBookingResponse;
-import my.ddos.model.dto.booking.UserBookingResponse;
+import my.ddos.model.dto.booking.*;
 import my.ddos.service.booking.BookingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(BookingController.class)
+@WebMvcTest(controllers = BookingController.class)
+@Import({SecurityConfig.class, CreateAuthenticationObjectFilter.class})
 class BookingControllerTest {
 
     @Autowired
@@ -49,20 +50,38 @@ class BookingControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/manager/bookings/my")
-                        .header("X-Username", username))
+                        .header("X-User-Id", "1")
+                        .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_USER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username));
     }
 
     @Test
-    void getAllBookings_shouldReturnAllBookings() throws Exception {
+    void getAllBookings_AsAdmin_shouldReturnAllBookings() throws Exception {
         // Given
         when(bookingService.getAllBookings()).thenReturn(Collections.emptyList());
 
         // When & Then
-        mockMvc.perform(get("/api/manager/bookings/admin"))
+        mockMvc.perform(get("/api/manager/bookings")
+                        .header("X-User-Id", "1")
+                        .header("X-Username", "admin")
+                        .header("X-User-Roles", "ROLE_ADMIN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(0));
+    }
+
+    @Test
+    void getAllBookings_AsUser_shouldReturnForbidden() throws Exception {
+        // Given
+        // No need to mock service, as it should be blocked by security
+
+        // When & Then
+        mockMvc.perform(get("/api/manager/bookings")
+                        .header("X-User-Id", "2")
+                        .header("X-Username", "user")
+                        .header("X-User-Roles", "ROLE_USER"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -76,7 +95,9 @@ class BookingControllerTest {
         // When & Then
         mockMvc.perform(post("/api/manager/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "1")
                         .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_USER")
                         .content(objectMapper.writeValueAsString(bookingRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L));
@@ -87,12 +108,15 @@ class BookingControllerTest {
         // Given
         String username = "testuser";
         CancelBookingRequest cancelBookingRequest = new CancelBookingRequest(1L);
-        doNothing().when(bookingService).cancelBooking(eq(username), any(CancelBookingRequest.class));
+        when(bookingService.cancelBooking(eq(username), any(CancelBookingRequest.class)))
+                .thenReturn(new CancelBookingResponse("Success"));
 
         // When & Then
         mockMvc.perform(post("/api/manager/bookings/cancel")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "1")
                         .header("X-Username", username)
+                        .header("X-User-Roles", "ROLE_USER")
                         .content(objectMapper.writeValueAsString(cancelBookingRequest)))
                 .andExpect(status().isOk());
     }

@@ -15,12 +15,11 @@ import my.ddos.model.entity.Role;
 import my.ddos.model.entity.User;
 import my.ddos.repository.RoleRepository;
 import my.ddos.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
+import my.ddos.service.i18n.MessageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +35,8 @@ public class UserServiceImpl implements UserService {
 
     private final KafkaChangedRoleProducer kafkaChangedRoleProducer;
 
-    @Value("${success.register.message}")
-    String successRegisterMessage;
+    private final MessageService messageService;
+
 
     @Override
     @Transactional
@@ -66,10 +65,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse changeRole(String changedBy, ChangeRoleRequest changeRoleRequest) {
         User user = userRepository.findById(changeRoleRequest.getId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + changeRoleRequest.getId() + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(messageService.getMessage
+                        ("user.not.found", new Object[]{changeRoleRequest.getId()})));
         UserRole role = UserRole.fromString(changeRoleRequest.getRole());
-        Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException("Role " + role
-                + " not found"));
+        Role userRole = roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException
+                (messageService.getMessage("role.not.found", new Object[]{role})));
         user.getUserRoles().clear();
         user.getUserRoles().add(userRole);
         User savedUser = userRepository.save(user);

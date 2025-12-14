@@ -18,6 +18,7 @@ import my.ddos.model.entity.User;
 import my.ddos.model.entity.Venue;
 import my.ddos.repository.EventRepository;
 import my.ddos.service.event.EventServiceImpl;
+import my.ddos.service.i18n.MessageService;
 import my.ddos.service.user.UserService;
 import my.ddos.service.venue.VenueService;
 import my.ddos.validator.EventValidator;
@@ -57,6 +58,9 @@ class EventServiceImplTest {
     @Mock
     private EventChangedEventMapper eventChangedEventMapper;
 
+    @Mock
+    private MessageService messageService;
+
     @InjectMocks
     private EventServiceImpl eventService;
 
@@ -90,6 +94,7 @@ class EventServiceImplTest {
         // Given
         Long eventId = 1L;
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(messageService.getMessage(any(), any())).thenReturn("Event not found");
 
         // When & Then
         assertThrows(EventNotFoundException.class, () -> eventService.getEvent(eventId));
@@ -288,6 +293,7 @@ class EventServiceImplTest {
         );
 
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(messageService.getMessage(any(), any())).thenReturn("Event not found");
 
         // When & Then
         assertThrows(EventNotFoundException.class, () -> eventService.patchEvent(eventId, patchRequest, changedBy));
@@ -319,6 +325,7 @@ class EventServiceImplTest {
         // Given
         Long eventId = 1L;
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(messageService.getMessage(any(), any())).thenReturn("Event not found");
 
         // When & Then
         assertThrows(EventNotFoundException.class, () -> eventService.deleteEvent(eventId));

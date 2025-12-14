@@ -8,6 +8,7 @@ import my.ddos.model.dto.venue.VenueRequest;
 import my.ddos.model.dto.venue.VenueResponse;
 import my.ddos.model.entity.Venue;
 import my.ddos.repository.VenueRepository;
+import my.ddos.service.i18n.MessageService;
 import my.ddos.validator.VenueValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,8 @@ public class VenueServiceImpl implements VenueService {
     private final VenueMapper venueMapper;
 
     private final VenueValidator venueValidator;
+
+    private final MessageService messageService;
 
     @Override
     public List<VenueResponse> getAllVenues() {
@@ -41,7 +44,8 @@ public class VenueServiceImpl implements VenueService {
     @Override
     public VenueResponse getVenue(Long id) {
         return venueRepository.findById(id).map(venueMapper::toResponse)
-                .orElseThrow(() -> new VenueNotFoundException("Venue with id " + id + " not found"));
+                .orElseThrow(() -> new VenueNotFoundException
+                        (messageService.getMessage("venue.not.found", new Object[]{id})));
     }
 
 
@@ -49,7 +53,8 @@ public class VenueServiceImpl implements VenueService {
     @Transactional
     public VenueResponse patchVenue(Long id, PatchVenueRequest patchVenueRequest) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new VenueNotFoundException("Venue with id " + id + " not found"));
+                .orElseThrow(() -> new VenueNotFoundException
+                        (messageService.getMessage("venue.not.found", new Object[]{id})));
         venueMapper.patchFromRequest(patchVenueRequest, venue);
         return venueMapper.toResponse(venueRepository.save(venue));
     }
@@ -58,7 +63,8 @@ public class VenueServiceImpl implements VenueService {
     @Transactional
     public void deleteVenue(Long id) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new VenueNotFoundException("Venue with id " + id + " not found"));
+                .orElseThrow(() -> new VenueNotFoundException
+                        (messageService.getMessage("venue.not.found", new Object[]{id})));
         venueRepository.deleteById(id);
     }
 }

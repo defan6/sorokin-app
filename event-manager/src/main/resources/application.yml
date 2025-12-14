@@ -13,11 +13,3 @@ spring:
         format_sql: true
   kafka:
     bootstrap-servers: kafka:9092
-success:
-  register:
-    message: "We were successfully registered"
-  booking:
-    message: "You were successfully registered. We'll wait you."
-  cancel:
-    booking:
-      message: "Your booking was cancelled."

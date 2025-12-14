@@ -21,6 +21,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationWebFilter jwtAuthenticationWebFilter;
 
+    private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
+
+
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http){
         return http
@@ -29,14 +32,11 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges ->
                         exchanges
                                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                                .pathMatchers("/api/auth/**").permitAll()
-                                .pathMatchers("/api/manager/venues/admin/**").hasRole("ADMIN")
-                                .pathMatchers("/api/manager/events/admin/**").hasRole("ADMIN")
-                                .pathMatchers("/api/manager/users/admin/**").hasRole("ADMIN")
-                                .pathMatchers("/api/manager/bookings/admin/**").hasRole("ADMIN")
-                                .pathMatchers("/api/manager/**").authenticated()
-                                .pathMatchers("/api/notificator/**").authenticated()
-                                .anyExchange().permitAll())
+                                .pathMatchers("/api/auth/login/**").permitAll()
+                                .pathMatchers("/api/auth/register/user/**").permitAll()
+                                .anyExchange().authenticated()
+                )
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(customAuthenticationEntryPointHandler))
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION) //was problem here
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)

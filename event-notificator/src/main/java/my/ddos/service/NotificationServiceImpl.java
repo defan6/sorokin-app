@@ -5,6 +5,7 @@ import my.ddos.enums.ReadStatus;
 import my.ddos.exception.NotificationNotFoundException;
 import my.ddos.mapper.BookingEventMapper;
 import my.ddos.mapper.NotificationMapper;
+import my.ddos.model.dto.ChangeNotificationStatusRequest;
 import my.ddos.model.dto.EventBooking;
 import my.ddos.model.dto.NotificationResponse;
 import my.ddos.model.entity.Notification;
@@ -45,9 +46,9 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
     @Override
-    public void markNotificationAsRead(Long id, String username) {
-        Notification notification = notificationRepository.findByIdAndUsername(id, username)
-                .orElseThrow(() -> new NotificationNotFoundException("Notification with id " + id + " not found."));
+    public void markNotificationAsRead(ChangeNotificationStatusRequest request, String username) {
+        Notification notification = notificationRepository.findByIdAndUsername(request.notificationId(), username)
+                .orElseThrow(() -> new NotificationNotFoundException("Notification with notificationId " + request.notificationId() + " not found."));
         notification.setReadStatus(ReadStatus.READ);
         notificationRepository.save(notification);
     }
@@ -55,6 +56,6 @@ public class NotificationServiceImpl implements NotificationService{
     @Override
     public void save(EventBooking eventBooking) {
         Notification notification = bookingEventMapper.toEntity(eventBooking);
-        Notification savedNotification = notificationRepository.save(notification);
+        notificationRepository.save(notification);
     }
 }

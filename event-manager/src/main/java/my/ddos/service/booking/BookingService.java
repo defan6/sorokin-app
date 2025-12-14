@@ -11,5 +11,5 @@ public interface BookingService {
 
     RegisterBookingResponse createBooking(BookingRequest registerBookingRequest, String username);
 
-    void cancelBooking(String username, CancelBookingRequest cancelBookingRequest);
+    CancelBookingResponse cancelBooking(String username, CancelBookingRequest cancelBookingRequest);
 }

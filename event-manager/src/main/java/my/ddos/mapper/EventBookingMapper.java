@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class EventBookingMapper {
 
-    public EventBooking toEventBooking(String username, String message, Booking booking){
+    public EventBooking toEventBooking(Booking booking){
         return new EventBooking(
-                message,
                 booking.getEvent().getId(),
                 booking.getBookingStatus(),
                 booking.getRegisteredAt(),

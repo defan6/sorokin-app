@@ -16,6 +16,7 @@ import my.ddos.model.entity.Event;
 import my.ddos.model.entity.User;
 import my.ddos.model.entity.Venue;
 import my.ddos.repository.EventRepository;
+import my.ddos.service.i18n.MessageService;
 import my.ddos.validator.EventValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,9 @@ public class EventServiceImpl implements EventService {
 
     private final EventValidator eventValidator;
 
+    private final MessageService messageService;
+
+
 
     private final EntityManager entityManager;
 
@@ -45,7 +49,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventResponse getEvent(Long id) {
         return eventRepository.findById(id).map(eventMapper::toResponse)
-                .orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
+                .orElseThrow(() -> new EventNotFoundException(messageService.getMessage
+                        ("event.not.found", new Object[]{id})));
     }
 
     @Override
@@ -69,7 +74,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventResponse patchEvent(Long id, PatchEventRequest patchEventRequest, String changedBy) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found."));
+                .orElseThrow(() -> new EventNotFoundException
+                        (messageService.getMessage("event.not.found", new Object[]{id})));
         eventMapper.patchFromRequest(patchEventRequest, event);
         Event savedEvent = eventRepository.save(event);
         EventChangedEvent eventChangedEvent = eventChangedEventMapper.toEventChanged(savedEvent, changedBy);
@@ -81,7 +87,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEvent(Long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found."));
+                .orElseThrow(() -> new EventNotFoundException(messageService.getMessage
+                        ("event.not.found", new Object[]{id})));
         eventRepository.delete(event);
     }
 

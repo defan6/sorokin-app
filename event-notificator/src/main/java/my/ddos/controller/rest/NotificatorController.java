@@ -1,8 +1,8 @@
 package my.ddos.controller.rest;
 
 import lombok.RequiredArgsConstructor;
+import my.ddos.model.dto.ChangeNotificationStatusRequest;
 import my.ddos.model.dto.NotificationResponse;
-import my.ddos.model.entity.Notification;
 import my.ddos.service.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +29,9 @@ public class NotificatorController {
         return ResponseEntity.ok(notificationService.getMyUnreadNotifications(username));
     }
 
-    @PostMapping("/mark-as-read/{id}")
+    @PostMapping("/mark-as-read")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void markNotificationAsRead(@PathVariable Long id, @RequestHeader("X-Username") String username){
-        notificationService.markNotificationAsRead(id, username);
+    public void markNotificationAsRead(@RequestBody ChangeNotificationStatusRequest request, @RequestHeader("X-Username") String username){
+        notificationService.markNotificationAsRead(request, username);
     }
 }
