@@ -23,7 +23,7 @@ public class JwtUtil {
     private String secret;
 
 
-    public boolean validateToken(String token) {
+    public boolean isTokenValid(String token) {
         try {
             Claims claims = extractAllClaims(token);
             return !claims.getExpiration().before(new Date());

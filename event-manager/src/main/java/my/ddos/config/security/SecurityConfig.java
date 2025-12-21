@@ -1,6 +1,6 @@
 package my.ddos.config.security;
 
-import my.ddos.CreateAuthenticationObjectFilter;
+import my.ddos.filter.CreateAuthenticationObjectFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .anyRequest()
-                        .authenticated()
+                        .permitAll()
                 )
                 .addFilterBefore(createAuthenticationObjectFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

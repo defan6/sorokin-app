@@ -1,7 +1,7 @@
 package my.ddos.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import my.ddos.CreateAuthenticationObjectFilter;
+import my.ddos.filter.CreateAuthenticationObjectFilter;
 import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.UserController;
 import my.ddos.model.dto.role.ChangeRoleRequest;

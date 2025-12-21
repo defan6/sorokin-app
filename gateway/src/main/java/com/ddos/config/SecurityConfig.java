@@ -1,6 +1,7 @@
 package com.ddos.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,11 +18,15 @@ import java.util.List;
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class  SecurityConfig {
 
     private final JwtAuthenticationWebFilter jwtAuthenticationWebFilter;
 
     private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
+
+
+    @Value("${services.urls.frontend}")
+    private String frontendUrl;
 
 
     @Bean
@@ -36,9 +41,11 @@ public class SecurityConfig {
                                 .pathMatchers("/api/auth/register/user/**").permitAll()
                                 .anyExchange().authenticated()
                 )
+
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(customAuthenticationEntryPointHandler))
+
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION) //was problem here
+                .addFilterBefore(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .build();
     }
@@ -46,7 +53,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of(frontendUrl));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

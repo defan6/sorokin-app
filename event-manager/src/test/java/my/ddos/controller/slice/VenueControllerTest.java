@@ -1,7 +1,7 @@
 package my.ddos.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import my.ddos.CreateAuthenticationObjectFilter;
+import my.ddos.filter.CreateAuthenticationObjectFilter;
 import my.ddos.config.security.SecurityConfig;
 import my.ddos.controller.rest.VenueController;
 import my.ddos.model.dto.venue.PatchVenueRequest;
@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

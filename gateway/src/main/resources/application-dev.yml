@@ -1,5 +1,6 @@
 services:
   urls:
+    frontend: http://localhost:3000
     event-manager-service-url: http://localhost:7082
     event-notificator-service-url: http://localhost:7083
     profile-service-url: http://localhost:7084
@@ -10,3 +11,8 @@ jwt:
   secret: N1trb0F1dGgtU2VjcmV0LUtleS1Gb3ItSlJULVNpZ25pbmctYW5kLVZlcmlmaWNhdGlvbi1IZXJl
 server:
   port: 7080
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE

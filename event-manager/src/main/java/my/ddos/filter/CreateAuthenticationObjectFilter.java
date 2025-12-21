@@ -1,17 +1,15 @@
-package my.ddos;
+package my.ddos.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -30,14 +28,16 @@ public class CreateAuthenticationObjectFilter extends OncePerRequestFilter {
         String userIdHeader = request.getHeader(X_USER_ID_HEADER);
         String userRolesHeader = request.getHeader(X_USER_ROLES_HEADER);
 
+
+
         try {
             Long userId = Long.parseLong(userIdHeader);
             List<SimpleGrantedAuthority> grantedAuthorities = Arrays.stream(userRolesHeader.split(","))
                     .map(SimpleGrantedAuthority::new)
                     .toList();
 
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, grantedAuthorities);
-            SecurityContextHolder.getContext().setAuthentication(token);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, grantedAuthorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (NumberFormatException e) {
             log.warn("Invalid X-User-Id header format: {}", userIdHeader);
         }
